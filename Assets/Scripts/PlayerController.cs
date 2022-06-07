@@ -6,13 +6,18 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] Animator playerAnim;
     [SerializeField] Transform playerTransform;
-    [SerializeField] Rigidbody playerRb;
+    Rigidbody playerRb;
 
     float horizontalInput;
     float verticalInput;
 
     [SerializeField] float speed;
     [SerializeField] float rotationSpeed;
+
+    void Awake()
+    {
+        playerRb = GetComponent<Rigidbody>();
+    }
 
     void Update()
     {

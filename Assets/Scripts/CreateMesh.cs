@@ -27,7 +27,7 @@ public class CreateMesh : MonoBehaviour
         int triangleIndex = 0;
         for (int i = 0; i < triangleCount + 1; i++)
         {
-            Vector3 vertex = origin + GetVectorFromAngle(currentAngle) * range;
+            Vector3 vertex = origin + GetVectorFromAngle(currentAngle, 90 + angle / 2) * range; //offset to GetVectorFromAngle added so that cone faces correct direction
             vertices[vertexIndex] = vertex;
 
             if (i > 0)
@@ -99,9 +99,9 @@ public class CreateMesh : MonoBehaviour
         return mesh;
     }
 
-    static Vector3 GetVectorFromAngle(float angle)
+    static Vector3 GetVectorFromAngle(float angle, float offset=0)
     {
-        float angleRad = angle * (Mathf.PI / 180);
+        float angleRad = (angle + offset) * (Mathf.PI / 180);
         return new Vector3(Mathf.Cos(angleRad), 0, Mathf.Sin(angleRad));
     }
 }

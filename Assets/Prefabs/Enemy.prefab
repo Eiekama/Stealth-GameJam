@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8289563720269340904}
   - component: {fileID: 8289563720269340905}
   - component: {fileID: 8289563720269340917}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -113,6 +113,7 @@ MonoBehaviour:
   viewconeRange: 10
   viewconeAngle: 90
   hearingThreshold: 1
+  currentState: 0
 --- !u!1 &8289563720342978291
 GameObject:
   m_ObjectHideFlags: 0

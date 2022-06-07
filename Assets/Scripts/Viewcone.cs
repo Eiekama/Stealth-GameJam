@@ -23,7 +23,7 @@ public class Viewcone : MonoBehaviour
         meshFilter.mesh = viewcone;
         meshCollider.sharedMesh = viewcone;
     }
-
+    /*
     private void OnTriggerStay(Collider other)
     {
         if (other.CompareTag("Player")) //vision sensor
@@ -60,4 +60,5 @@ public class Viewcone : MonoBehaviour
             enemy.currentState = EnemyAI.State.Idle;
         }
     }
+    */
 }
