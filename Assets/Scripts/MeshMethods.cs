@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CreateMesh : MonoBehaviour
+public class MeshMethods : MonoBehaviour
 {
-    public static Mesh Cone(float range, float angle, int triangleCount)
+    public static Mesh CreateCone(float range, float angle, int triangleCount)
     {
         Vector3[] vertices;
         Vector2[] uv;

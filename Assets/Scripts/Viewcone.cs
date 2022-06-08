@@ -11,14 +11,14 @@ public class Viewcone : MonoBehaviour
 
     [SerializeField] int triangleCount;
 
-    Mesh viewcone;
+    UnityEngine.Mesh viewcone;
 
     void Awake()
     {
         meshFilter = GetComponent<MeshFilter>();
         meshCollider = GetComponent<MeshCollider>();
 
-        viewcone = CreateMesh.Cone(enemy.viewconeRange, enemy.viewconeAngle, triangleCount);
+        viewcone = MeshMethods.CreateCone(enemy.viewconeRange, enemy.viewconeAngle, triangleCount);
 
         meshFilter.mesh = viewcone;
         meshCollider.sharedMesh = viewcone;
