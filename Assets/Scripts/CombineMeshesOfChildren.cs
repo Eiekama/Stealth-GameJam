@@ -10,13 +10,14 @@ public class CombineMeshesOfChildren : MonoBehaviour
     void Start()
     {
         MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
-        CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+        CombineInstance[] combine = new CombineInstance[meshFilters.Length - 1]; //bc GetComponentInChildren also returns parent's component
 
-        int i = 0;
+        int i = 1;
+        Matrix4x4 parentWorldToLocalMatrix = transform.worldToLocalMatrix;
         while (i < meshFilters.Length)
         {
-            combine[i].mesh = meshFilters[i].sharedMesh;
-            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
+            combine[i - 1].mesh = meshFilters[i].sharedMesh;
+            combine[i - 1].transform = parentWorldToLocalMatrix * meshFilters[i].transform.localToWorldMatrix;
             meshFilters[i].gameObject.SetActive(false);
 
             i++;
@@ -25,6 +26,5 @@ public class CombineMeshesOfChildren : MonoBehaviour
         GetComponent<MeshRenderer>().material = material;
         GetComponent<MeshFilter>().mesh = new Mesh();
         GetComponent<MeshFilter>().mesh.CombineMeshes(combine);
-        gameObject.SetActive(true);
     }
 }
