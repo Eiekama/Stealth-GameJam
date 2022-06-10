@@ -5,7 +5,7 @@ using UnityEngine;
 public class NoiseSource : MonoBehaviour
 {
     public float soundRange;
-    float sourceIntensity;
+    public float sourceIntensity { get; private set; }
 
     MeshFilter meshFilter;
     MeshCollider meshCollider;

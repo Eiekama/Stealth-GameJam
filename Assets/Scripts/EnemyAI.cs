@@ -71,27 +71,27 @@ public class EnemyAI : MonoBehaviour
         switch (currentState)
         {
             case State.Idle:
-                Idle();
+                //Idle();
                 break;
 
             case State.Suspicious:
-                Suspicious();
+                //Suspicious();
                 break;
 
             case State.Turn:
-                Turn();
+                //Turn();
                 break;
 
             case State.Chase:
-                Chase();
+                //Chase();
                 break;
 
             case State.Search:
-                Search();
+                //Search();
                 break;
 
             case State.CheckSound:
-                CheckSound();
+                //CheckSound();
                 break;
         }
     }
@@ -99,14 +99,29 @@ public class EnemyAI : MonoBehaviour
     void OnTriggerStay(Collider other)
     {
         if (other.CompareTag("Noise")) //audio sensor
-        { //after implementing navmesh add distance calculation for intensity
+        {
             if (currentState != State.Chase && currentState != State.CheckSound)
             {
                 soundPos = new Vector3(other.gameObject.transform.position.x, 0, other.gameObject.transform.position.z);
-                
-                Debug.Log("State changed to CheckSound");
-                OnChangeState.Invoke();
-                currentState = State.CheckSound;
+
+                NavMeshPath path = new NavMeshPath();
+                agent.CalculatePath(soundPos, path);
+                float distance = 0;
+                for (int i = 0; i < path.corners.Length - 1; i++)
+                {
+                    distance += Vector3.Distance(path.corners[i], path.corners[i + 1]);
+                }
+                Debug.Log("distance: " + distance);
+
+                float intensity = other.GetComponent<NoiseSource>().sourceIntensity / (distance * distance);
+                Debug.Log("intensity: " + intensity);
+
+                if (intensity > hearingThreshold)
+                {
+                    Debug.Log("State changed to CheckSound");
+                    OnChangeState.Invoke();
+                    currentState = State.CheckSound;
+                }
             }
         }
     }
@@ -160,7 +175,6 @@ public class EnemyAI : MonoBehaviour
             Vector3 up = Vector3.Cross(transform.forward, playerPos - transform.position);
             targetRot = up.y < 0 ? transform.rotation * Quaternion.Euler(0, 180, 0) : transform.rotation * Quaternion.Euler(0, -180, 0);
 
-            //targetRot = transform.rotation * Quaternion.Euler(0, 180, 0);
             ChangedVariablesFor["Turn"] = true;
         }
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, agent.angularSpeed * Time.deltaTime);
