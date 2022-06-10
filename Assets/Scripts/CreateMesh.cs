@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MeshMethods : MonoBehaviour
+public class CreateMesh : MonoBehaviour
 {
-    public static Mesh CreateCone(float range, float angle, int triangleCount)
+    public static Mesh Cone(float range, float angle, int triangleCount)
     {
         Vector3[] vertices;
         Vector2[] uv;
@@ -99,7 +99,7 @@ public class MeshMethods : MonoBehaviour
         return mesh;
     }
 
-    static Vector3 GetVectorFromAngle(float angle, float offset=0)
+    static Vector3 GetVectorFromAngle(float angle, float offset = 0)
     {
         float angleRad = (angle + offset) * (Mathf.PI / 180);
         return new Vector3(Mathf.Cos(angleRad), 0, Mathf.Sin(angleRad));

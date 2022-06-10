@@ -309,6 +309,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1996697707}
   - component: {fileID: 1996697706}
+  - component: {fileID: 1996697708}
   m_Layer: 0
   m_Name: Generated Dungeon
   m_TagString: Untagged
@@ -328,8 +329,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0a184ce34a4e4f8790c8c97fc12357e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rootChamber: {fileID: 8096923438801218124, guid: d6ab339f94c614670beccf3a675b0317, type: 3}
-  maxGenerationTime: 2
+  rootChamber: {fileID: 2832049167575478849, guid: 12a568fcdc0884279b6c36085fb5aabe, type: 3}
+  endChamber: {fileID: 5888920074747497878, guid: fdd624202b6f143caa14511f293f6862, type: 3}
+  maxGenerationTime: 5
   dungeonPrefabs: []
 --- !u!4 &1996697707
 Transform:
@@ -345,3 +347,32 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1996697708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1996697705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3df27b9289d1e8c4fb82e0df4f4673ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AgentTypeID: 0
+  m_CollectObjects: 0
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  m_UseGeometry: 0
+  m_DefaultArea: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.16666667
+  m_BuildHeightMesh: 0
+  m_NavMeshData: {fileID: 0}

@@ -1,31 +1,53 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Events;
 
 public class EnemyAI : MonoBehaviour
 {
-    NavMeshAgent agent;
+    public NavMeshAgent agent;
 
     public float viewconeRange;
     public float viewconeAngle;
+    public float peripheralRange;
+    public float peripheralAngle;
+    public float sixthSenseRange;
+    public float sixthSenseAngle;
     public float hearingThreshold;
     [SerializeField] float DefaultStoppingDistance = 0.5f;
+    [SerializeField] float DefaultSpeed = .5f;
 
     public enum State
     {
         Idle,
         Suspicious,
+        Turn,
         Chase,
         Search,
         CheckSound
     }
     public State currentState;
 
+    public UnityEvent OnChangeState;
+
+    Dictionary<string, bool> ChangedVariablesFor = new Dictionary<string, bool>
+    {
+        { Enum.GetName(typeof(State), 0), false },
+        { Enum.GetName(typeof(State), 1), false },
+        { Enum.GetName(typeof(State), 2), false },
+        { Enum.GetName(typeof(State), 3), false },
+        { Enum.GetName(typeof(State), 4), false },
+        { Enum.GetName(typeof(State), 5), false }
+    };
+
     [SerializeField] Waypoint currentWaypoint;
     bool changedDir;
 
     public Vector3 playerPos;
+
+    Quaternion targetRot;
 
     public Vector3 lastSeenPos;
 
@@ -35,6 +57,13 @@ public class EnemyAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         agent.stoppingDistance = DefaultStoppingDistance;
+        agent.speed = DefaultSpeed;
+        if (OnChangeState == null) { OnChangeState = new UnityEvent(); }
+    }
+
+    void Start()
+    {
+        OnChangeState.AddListener(ResetVariables);
     }
 
     void FixedUpdate()
@@ -46,6 +75,11 @@ public class EnemyAI : MonoBehaviour
                 break;
 
             case State.Suspicious:
+                Suspicious();
+                break;
+
+            case State.Turn:
+                Turn();
                 break;
 
             case State.Chase:
@@ -69,9 +103,9 @@ public class EnemyAI : MonoBehaviour
             if (currentState != State.Chase && currentState != State.CheckSound)
             {
                 soundPos = new Vector3(other.gameObject.transform.position.x, 0, other.gameObject.transform.position.z);
-                agent.stoppingDistance = Random.Range(0.5f, 1.5f);
-
+                
                 Debug.Log("State changed to CheckSound");
+                OnChangeState.Invoke();
                 currentState = State.CheckSound;
             }
         }
@@ -116,23 +150,53 @@ public class EnemyAI : MonoBehaviour
 
     void Suspicious()
     {
+        agent.SetDestination(playerPos);
+    }
 
+    void Turn()
+    {
+        if (!ChangedVariablesFor["Turn"])
+        {
+            Vector3 up = Vector3.Cross(transform.forward, playerPos - transform.position);
+            targetRot = up.y < 0 ? transform.rotation * Quaternion.Euler(0, 180, 0) : transform.rotation * Quaternion.Euler(0, -180, 0);
+
+            //targetRot = transform.rotation * Quaternion.Euler(0, 180, 0);
+            ChangedVariablesFor["Turn"] = true;
+        }
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, agent.angularSpeed * Time.deltaTime);
+        if (transform.rotation == targetRot && currentState == State.Turn)
+        {
+            Debug.Log("State changed to Idle");
+            OnChangeState.Invoke();
+            currentState = State.Idle;
+        }
     }
 
     void Chase()
     {
+        if (!ChangedVariablesFor["Chase"])
+        {
+            agent.speed *= 2;
+            ChangedVariablesFor["Chase"] = true;
+        }
+
         agent.SetDestination(playerPos);
     }
 
     void Search()
     {
+        if (!ChangedVariablesFor["Search"])
+        {
+            agent.stoppingDistance = UnityEngine.Random.Range(0.5f, 1.5f);
+            ChangedVariablesFor["Search"] = true;
+        }
         agent.SetDestination(lastSeenPos);
 
         if (ReachedDestination())
         {
             Debug.Log("State changed to Idle");
+            OnChangeState.Invoke();
             currentState = State.Idle;
-            agent.stoppingDistance = DefaultStoppingDistance;
         }
     }
 
@@ -143,8 +207,8 @@ public class EnemyAI : MonoBehaviour
         if (ReachedDestination())
         {
             Debug.Log("State changed to Idle");
+            OnChangeState.Invoke();
             currentState = State.Idle;
-            agent.stoppingDistance = DefaultStoppingDistance;
         }
     }
 
@@ -154,5 +218,17 @@ public class EnemyAI : MonoBehaviour
         if (agent.remainingDistance > agent.stoppingDistance) { return false; }
         if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f) { return true; }
         else { return false; }
+    }
+
+    void ResetVariables()
+    {
+        agent.speed = DefaultSpeed;
+        agent.stoppingDistance = DefaultStoppingDistance;
+
+        
+        foreach (var state in Enum.GetNames(typeof(State)))
+        {
+            if (ChangedVariablesFor[state]) { ChangedVariablesFor[state] = false; }
+        }
     }
 }

@@ -12,7 +12,7 @@ public class NoiseSource : MonoBehaviour
 
     [SerializeField] int triangleCount;
 
-    UnityEngine.Mesh soundcone;
+    Mesh soundcone;
 
      void Awake()
     {
@@ -21,7 +21,7 @@ public class NoiseSource : MonoBehaviour
 
         sourceIntensity = soundRange * soundRange;
 
-        soundcone = MeshMethods.CreateCone(soundRange, 360f, triangleCount);
+        soundcone = CreateMesh.Cone(soundRange, 360f, triangleCount);
 
         meshFilter.mesh = soundcone;
         meshCollider.sharedMesh = soundcone;

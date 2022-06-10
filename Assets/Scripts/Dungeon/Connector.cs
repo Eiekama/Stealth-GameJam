@@ -56,7 +56,6 @@ public class Connector : MonoBehaviour
             //validation
             if (!isAttemptValid)
             {
-                Debug.Log("not valid, trying again");
                 validPrefabs.Remove(chosenPrefab);
             } else
             {
@@ -85,7 +84,7 @@ public class Connector : MonoBehaviour
         return spawnedWall;
     }
 
-    GameObject SpawnAdjacentRoom(GameObject prefab, Transform connector)
+    public GameObject SpawnAdjacentRoom(GameObject prefab, Transform connector)
     {
         //calculate required rotation and position
         float yRot = Quaternion.Angle(transform.rotation, connector.rotation);

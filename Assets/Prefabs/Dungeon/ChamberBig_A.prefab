@@ -751,7 +751,6 @@ MonoBehaviour:
   - {fileID: 7086873720238411825, guid: 7d98884177ce74fbb93d98dfad8ada51, type: 3}
   - {fileID: 3382011252574872231, guid: 312ccf9c3e01b4a33b15df4e834742f9, type: 3}
   - {fileID: 4931636495657349104, guid: d72e1a2ce8c8a43638b6310416c1080e, type: 3}
-  - {fileID: 8231541117247758183, guid: 6c66aa3090a25456490592022a78bff6, type: 3}
   - {fileID: 2548862733060590196, guid: 3f7bea2df94b24e81a497550b190d9ff, type: 3}
   isConnected: 0
   isAttemptValid: 1
@@ -1201,7 +1200,6 @@ MonoBehaviour:
   - {fileID: 7086873720238411825, guid: 7d98884177ce74fbb93d98dfad8ada51, type: 3}
   - {fileID: 3382011252574872231, guid: 312ccf9c3e01b4a33b15df4e834742f9, type: 3}
   - {fileID: 4931636495657349104, guid: d72e1a2ce8c8a43638b6310416c1080e, type: 3}
-  - {fileID: 8231541117247758183, guid: 6c66aa3090a25456490592022a78bff6, type: 3}
   - {fileID: 2548862733060590196, guid: 3f7bea2df94b24e81a497550b190d9ff, type: 3}
   isConnected: 0
   isAttemptValid: 1
@@ -1297,7 +1295,6 @@ MonoBehaviour:
   - {fileID: 7086873720238411825, guid: 7d98884177ce74fbb93d98dfad8ada51, type: 3}
   - {fileID: 3382011252574872231, guid: 312ccf9c3e01b4a33b15df4e834742f9, type: 3}
   - {fileID: 4931636495657349104, guid: d72e1a2ce8c8a43638b6310416c1080e, type: 3}
-  - {fileID: 8231541117247758183, guid: 6c66aa3090a25456490592022a78bff6, type: 3}
   - {fileID: 2548862733060590196, guid: 3f7bea2df94b24e81a497550b190d9ff, type: 3}
   isConnected: 0
   isAttemptValid: 1
@@ -1349,7 +1346,6 @@ MonoBehaviour:
   - {fileID: 7086873720238411825, guid: 7d98884177ce74fbb93d98dfad8ada51, type: 3}
   - {fileID: 3382011252574872231, guid: 312ccf9c3e01b4a33b15df4e834742f9, type: 3}
   - {fileID: 4931636495657349104, guid: d72e1a2ce8c8a43638b6310416c1080e, type: 3}
-  - {fileID: 8231541117247758183, guid: 6c66aa3090a25456490592022a78bff6, type: 3}
   - {fileID: 2548862733060590196, guid: 3f7bea2df94b24e81a497550b190d9ff, type: 3}
   isConnected: 0
   isAttemptValid: 1
@@ -1362,6 +1358,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8096923437907060666}
+  - component: {fileID: 3198148273664187874}
   m_Layer: 7
   m_Name: Arches
   m_TagString: Untagged
@@ -1387,6 +1384,22 @@ Transform:
   m_Father: {fileID: 8096923438801218125}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3198148273664187874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8096923437907060669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d07ce676d7afda4dabb3b0f7dd5e654, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff
 --- !u!1 &8096923438149266262
 GameObject:
   m_ObjectHideFlags: 0
@@ -1396,6 +1409,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8096923438149266263}
+  - component: {fileID: 2250776056119448304}
   m_Layer: 7
   m_Name: Walls
   m_TagString: Untagged
@@ -1419,6 +1433,22 @@ Transform:
   m_Father: {fileID: 8096923438801218125}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2250776056119448304
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8096923438149266262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d07ce676d7afda4dabb3b0f7dd5e654, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff
 --- !u!1 &8096923438801218124
 GameObject:
   m_ObjectHideFlags: 0

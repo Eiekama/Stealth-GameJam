@@ -20,6 +20,12 @@ public class DungeonChamber : MonoBehaviour
         if (sourceChamber != null)
         {
             while (!sourceChamber.isFullyConnected) { yield return null; }
+
+            if (connectors.Length == 1)
+            {
+                isFullyConnected = true;
+                yield break;
+            }
         }
 
         for (int i = 0; i < connectors.Length; i++)

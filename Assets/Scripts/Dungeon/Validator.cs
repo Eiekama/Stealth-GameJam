@@ -20,7 +20,6 @@ public class Validator : MonoBehaviour
         // tell connector this room is not valid
         if (!chamber.isLockedIn)
         {
-            Debug.Log(GetComponentInParent<DungeonChamber>().name + ": Alert source connector then destroy self");
             sourceConnector.isAttemptValid = false;
             Destroy(chamber.gameObject);
         }
