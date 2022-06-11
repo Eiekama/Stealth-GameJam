@@ -8,6 +8,7 @@ using UnityEngine.Events;
 public class EnemyAI : MonoBehaviour
 {
     public NavMeshAgent agent;
+    [SerializeField] Animator enemyAnim;
 
     public float viewconeRange;
     public float viewconeAngle;
@@ -64,34 +65,35 @@ public class EnemyAI : MonoBehaviour
     void Start()
     {
         OnChangeState.AddListener(ResetVariables);
+        OnChangeState.AddListener(React);
     }
 
-    void FixedUpdate()
+    void Update()
     {
         switch (currentState)
         {
             case State.Idle:
-                //Idle();
+                Idle();
                 break;
 
             case State.Suspicious:
-                //Suspicious();
+                Suspicious();
                 break;
 
             case State.Turn:
-                //Turn();
+                Turn();
                 break;
 
             case State.Chase:
-                //Chase();
+                Chase();
                 break;
 
             case State.Search:
-                //Search();
+                Search();
                 break;
 
             case State.CheckSound:
-                //CheckSound();
+                CheckSound();
                 break;
         }
     }
@@ -174,6 +176,8 @@ public class EnemyAI : MonoBehaviour
         {
             Vector3 up = Vector3.Cross(transform.forward, playerPos - transform.position);
             targetRot = up.y < 0 ? transform.rotation * Quaternion.Euler(0, 180, 0) : transform.rotation * Quaternion.Euler(0, -180, 0);
+            Debug.Log("Stopped agent");
+            agent.isStopped = true;
 
             ChangedVariablesFor["Turn"] = true;
         }
@@ -191,6 +195,7 @@ public class EnemyAI : MonoBehaviour
         if (!ChangedVariablesFor["Chase"])
         {
             agent.speed *= 2;
+            enemyAnim.SetFloat("Speed_f", 2);
             ChangedVariablesFor["Chase"] = true;
         }
 
@@ -202,6 +207,7 @@ public class EnemyAI : MonoBehaviour
         if (!ChangedVariablesFor["Search"])
         {
             agent.stoppingDistance = UnityEngine.Random.Range(0.5f, 1.5f);
+            enemyAnim.SetFloat("Speed_f", 0);
             ChangedVariablesFor["Search"] = true;
         }
         agent.SetDestination(lastSeenPos);
@@ -238,11 +244,28 @@ public class EnemyAI : MonoBehaviour
     {
         agent.speed = DefaultSpeed;
         agent.stoppingDistance = DefaultStoppingDistance;
-
         
         foreach (var state in Enum.GetNames(typeof(State)))
         {
             if (ChangedVariablesFor[state]) { ChangedVariablesFor[state] = false; }
         }
+    }
+
+    void React() { StartCoroutine(ReactCoroutine()); }
+
+    IEnumerator ReactCoroutine()
+    {
+        Debug.Log("Reacting");
+        enemyAnim.SetTrigger("React_t");
+
+        while (!enemyAnim.GetCurrentAnimatorStateInfo(0).IsTag("React")) { yield return null; }
+
+        while (enemyAnim.GetCurrentAnimatorStateInfo(0).IsTag("React"))
+        {
+            if (!agent.isStopped) { agent.isStopped = true; }
+            yield return null;
+        }
+        Debug.Log("end reacting");
+        agent.isStopped = false;
     }
 }

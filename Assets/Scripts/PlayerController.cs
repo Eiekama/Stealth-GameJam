@@ -11,18 +11,42 @@ public class PlayerController : MonoBehaviour
     float horizontalInput;
     float verticalInput;
 
-    [SerializeField] float speed;
+    [SerializeField] float crouchingSpeed;
+    [SerializeField] float walkingSpeed;
+    [SerializeField] float runningSpeed;
     [SerializeField] float rotationSpeed;
+
+    [SerializeField] GameObject walkingNoise;
+    [SerializeField] GameObject runningNoise;
+
+    float currentSpeed;
 
     void Awake()
     {
         playerRb = GetComponent<Rigidbody>();
+        currentSpeed = walkingSpeed;
     }
 
     void Update()
     {
         horizontalInput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
+
+        if (currentSpeed == walkingSpeed)
+        {
+            if (!walkingNoise.activeInHierarchy) { walkingNoise.SetActive(true); }
+            if (runningNoise.activeInHierarchy) { runningNoise.SetActive(false); }
+        } else if (currentSpeed == runningSpeed)
+        {
+            if (walkingNoise.activeInHierarchy) { walkingNoise.SetActive(false); }
+            if (!runningNoise.activeInHierarchy) { runningNoise.SetActive(true); }
+        } else
+        {
+            if (walkingNoise.activeInHierarchy) { walkingNoise.SetActive(false); }
+            if (runningNoise.activeInHierarchy) { runningNoise.SetActive(false); }
+        }
+
+        ManageAnimations();
     }
 
     // Update is called once per frame
@@ -30,7 +54,7 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 direction = new Vector3(horizontalInput, 0, verticalInput);
 
-        playerRb.MovePosition(playerTransform.position + speed * Time.deltaTime * direction);
+        playerRb.MovePosition(playerTransform.position + currentSpeed * Time.deltaTime * direction);
 
         if (direction != Vector3.zero)
         {
@@ -38,22 +62,58 @@ public class PlayerController : MonoBehaviour
             playerTransform.rotation = Quaternion.RotateTowards(playerTransform.rotation, toRotation, rotationSpeed * Time.deltaTime);
         }
 
-        ManageAnimations();
     }
 
     void ManageAnimations()
     {
-        if (Mathf.Abs(horizontalInput) + Mathf.Abs(verticalInput) > 0)
+        if (Input.GetKeyDown(KeyCode.C))
         {
-            if (playerAnim.GetFloat("Speed_f") != speed)
+            if (!playerAnim.GetBool("IsCrouching_b"))
             {
-                playerAnim.SetFloat("Speed_f", speed);
+                playerAnim.SetBool("IsCrouching_b", true);
+            }
+            else
+            {
+                playerAnim.SetBool("IsCrouching_b", false);
             }
         }
-        else
+
+        if (Mathf.Abs(horizontalInput) + Mathf.Abs(verticalInput) > 0) //if player is moving
         {
-            if (playerAnim.GetFloat("Speed_f") != 0)
+            if (Input.GetKey(KeyCode.X))
             {
+                if (currentSpeed != runningSpeed)
+                {
+                    currentSpeed = runningSpeed;
+                    playerAnim.SetFloat("Speed_f", runningSpeed);
+                    if (playerAnim.GetBool("IsCrouching_b"))
+                    {
+                        playerAnim.SetBool("IsCrouching_b", false);
+                    }
+                }
+            }
+            else if (playerAnim.GetBool("IsCrouching_b"))
+            {
+                if (currentSpeed != crouchingSpeed)
+                {
+                    currentSpeed = crouchingSpeed;
+                    playerAnim.SetFloat("Speed_f", crouchingSpeed);
+                }
+            }
+            else
+            {
+                if (currentSpeed != walkingSpeed)
+                {
+                    currentSpeed = walkingSpeed;
+                    playerAnim.SetFloat("Speed_f", walkingSpeed);
+                }
+            }
+        }
+        else // player not moving
+        {
+            if (currentSpeed != 0)
+            {
+                currentSpeed = 0;
                 playerAnim.SetFloat("Speed_f", 0);
             }
         }
