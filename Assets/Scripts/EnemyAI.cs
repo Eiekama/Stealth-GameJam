@@ -54,6 +54,9 @@ public class EnemyAI : MonoBehaviour
 
     Vector3 soundPos;
 
+    bool isReacting;
+
+
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -65,7 +68,6 @@ public class EnemyAI : MonoBehaviour
     void Start()
     {
         OnChangeState.AddListener(ResetVariables);
-        OnChangeState.AddListener(React);
     }
 
     void Update()
@@ -167,26 +169,39 @@ public class EnemyAI : MonoBehaviour
 
     void Suspicious()
     {
-        agent.SetDestination(playerPos);
+        if (!ChangedVariablesFor["Suspicious"])
+        {
+            React();
+
+            ChangedVariablesFor["Suspicious"] = true;
+        }
+
+        if (!isReacting) { agent.SetDestination(playerPos); }
     }
 
     void Turn()
     {
         if (!ChangedVariablesFor["Turn"])
         {
+            React();
+
             Vector3 up = Vector3.Cross(transform.forward, playerPos - transform.position);
             targetRot = up.y < 0 ? transform.rotation * Quaternion.Euler(0, 180, 0) : transform.rotation * Quaternion.Euler(0, -180, 0);
-            Debug.Log("Stopped agent");
-            agent.isStopped = true;
 
             ChangedVariablesFor["Turn"] = true;
         }
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, agent.angularSpeed * Time.deltaTime);
-        if (transform.rotation == targetRot && currentState == State.Turn)
+
+        if (!isReacting)
         {
-            Debug.Log("State changed to Idle");
-            OnChangeState.Invoke();
-            currentState = State.Idle;
+            agent.ResetPath();
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, agent.angularSpeed * Time.deltaTime);
+
+            if (transform.rotation == targetRot && currentState == State.Turn)
+            {
+                Debug.Log("State changed to Idle");
+                OnChangeState.Invoke();
+                currentState = State.Idle;
+            }
         }
     }
 
@@ -194,42 +209,70 @@ public class EnemyAI : MonoBehaviour
     {
         if (!ChangedVariablesFor["Chase"])
         {
+            React();
+
             agent.speed *= 2;
             enemyAnim.SetFloat("Speed_f", 2);
+
             ChangedVariablesFor["Chase"] = true;
         }
 
-        agent.SetDestination(playerPos);
+        if (!isReacting) { agent.SetDestination(playerPos); }
     }
 
     void Search()
     {
         if (!ChangedVariablesFor["Search"])
         {
+            React();
+
             agent.stoppingDistance = UnityEngine.Random.Range(0.5f, 1.5f);
             enemyAnim.SetFloat("Speed_f", 0);
+
             ChangedVariablesFor["Search"] = true;
         }
-        agent.SetDestination(lastSeenPos);
 
-        if (ReachedDestination())
+        if (!isReacting)
         {
-            Debug.Log("State changed to Idle");
-            OnChangeState.Invoke();
-            currentState = State.Idle;
+            agent.SetDestination(lastSeenPos);
+
+            if (ReachedDestination())
+            {
+                Debug.Log("State changed to Idle");
+                OnChangeState.Invoke();
+                currentState = State.Idle;
+            }
         }
     }
 
     void CheckSound()
     {
-        agent.SetDestination(soundPos);
-
-        if (ReachedDestination())
+        if (!ChangedVariablesFor["CheckSound"])
         {
-            Debug.Log("State changed to Idle");
-            OnChangeState.Invoke();
-            currentState = State.Idle;
+            React();
+
+            ChangedVariablesFor["CheckSound"] = true;
         }
+
+        if (!isReacting)
+        {
+            agent.SetDestination(soundPos);
+
+            if (ReachedDestination())
+            {
+                Debug.Log("State changed to Idle");
+                OnChangeState.Invoke();
+                currentState = State.Idle;
+            }
+        }
+    }
+
+    void React()
+    {
+        isReacting = true;
+        agent.isStopped = true;
+        enemyAnim.SetTrigger("React_t");
+        StartCoroutine(WaitForReactEnd());
     }
 
     bool ReachedDestination()
@@ -244,28 +287,19 @@ public class EnemyAI : MonoBehaviour
     {
         agent.speed = DefaultSpeed;
         agent.stoppingDistance = DefaultStoppingDistance;
-        
+
         foreach (var state in Enum.GetNames(typeof(State)))
         {
             if (ChangedVariablesFor[state]) { ChangedVariablesFor[state] = false; }
         }
     }
 
-    void React() { StartCoroutine(ReactCoroutine()); }
-
-    IEnumerator ReactCoroutine()
+    IEnumerator WaitForReactEnd()
     {
-        Debug.Log("Reacting");
-        enemyAnim.SetTrigger("React_t");
+        while (!enemyAnim.GetCurrentAnimatorStateInfo(0).IsTag("React")) { yield return null; } //wait for a few frames for the react anim to start playing
 
-        while (!enemyAnim.GetCurrentAnimatorStateInfo(0).IsTag("React")) { yield return null; }
-
-        while (enemyAnim.GetCurrentAnimatorStateInfo(0).IsTag("React"))
-        {
-            if (!agent.isStopped) { agent.isStopped = true; }
-            yield return null;
-        }
-        Debug.Log("end reacting");
+        while (enemyAnim.GetCurrentAnimatorStateInfo(0).IsTag("React")) { yield return null; } //returns true while react anim is playing
+        isReacting = false;
         agent.isStopped = false;
     }
 }
