@@ -10,11 +10,17 @@ public class Waypoint : MonoBehaviour
     [Range(0f, 5f)]
     public float width = 1f;
 
-    public Vector3 GetPosition()
+    public Vector3 GetPosition(bool isRandom = false)
     {
-        Vector3 minBound = transform.position - width / 2f * transform.right;
-        Vector3 maxBound = transform.position + width / 2f * transform.right;
+        if (isRandom)
+        {
+            Vector3 minBound = transform.position - width / 2f * transform.right;
+            Vector3 maxBound = transform.position + width / 2f * transform.right;
 
-        return Vector3.Lerp(minBound, maxBound, Random.Range(0f, 1f));
+            return Vector3.Lerp(minBound, maxBound, Random.Range(0f, 1f));
+        } else
+        {
+            return transform.position;
+        }
     }
 }

@@ -65,12 +65,14 @@ public class Viewcone : MonoBehaviour
 
     bool CanSeePlayer(Transform player)
     {
-        Vector3 direction = new Vector3(player.position.x - transform.position.x, 0, player.position.z - transform.position.z);
+        Vector3 direction = player.position - transform.position;
 
         Debug.DrawRay(transform.position, direction, Color.magenta);
 
         if (Physics.Raycast(transform.position, direction, out RaycastHit hitResult, range))
         {
+            //Debug.Log(hitResult.collider);
+
             if (hitResult.collider.CompareTag("Player")) { return true; }
         }
         return false;

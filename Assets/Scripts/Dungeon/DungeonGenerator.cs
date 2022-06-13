@@ -16,7 +16,7 @@ public class DungeonGenerator : MonoBehaviour
 
     DungeonChamber[] chambers = new DungeonChamber[1];
     int time;
-    bool isFullyGenerated = false;
+    public bool isFullyGenerated = false;
     bool endChamberSpawned;
 
     void Awake()
@@ -31,7 +31,7 @@ public class DungeonGenerator : MonoBehaviour
         chambers[0] = startChamber.GetComponent<DungeonChamber>();
         chambers[0].isLockedIn = true;
         StartCoroutine(SpawnDungeonProcess());
-        StartCoroutine(BakeMesh());
+        StartCoroutine(DoThingsAfterFullyGenerated());
     }
 
     IEnumerator SpawnDungeonProcess()
@@ -58,7 +58,7 @@ public class DungeonGenerator : MonoBehaviour
 
         for (int i = 0; i < chambers.Length; i++)
         {
-            prob += 100 / chambers.Length;
+            prob += 100f / chambers.Length;
             if (chambers[i].isFullyConnected) { continue; }
 
             for (int j = 0; j < chambers[i].connectors.Length; j++)
@@ -68,7 +68,7 @@ public class DungeonGenerator : MonoBehaviour
                 {
                     if (!endChamberSpawned && Random.Range(0f,100f) <= prob)
                     {
-                        connector.SpawnAdjacentRoom(endChamber, endChamber.GetComponentInChildren<Connector>().transform);
+                        connector.SpawnAdjacentRoom(endChamber, endChamber.GetComponentInChildren<Connector>().gameObject.transform);
                         endChamber.GetComponentInChildren<Validator>().sourceConnector = connector;
                         yield return new WaitForSeconds(0.2f);
                         if (connector.isAttemptValid)
@@ -77,7 +77,7 @@ public class DungeonGenerator : MonoBehaviour
                             continue;
                         }
                     }
-
+                    
                     connector.SpawnWall();
                 }
                 yield return null;
@@ -86,16 +86,20 @@ public class DungeonGenerator : MonoBehaviour
             yield return null;
         }
 
-
-        DungeonChamber finalChamber = chambers[chambers.Length - 1];
-        finalChamber.connectors[finalChamber.connectors.Length - 1].SpawnAdjacentRoom(endChamber, endChamber.GetComponentInChildren<Connector>().transform);
-
         isFullyGenerated = true;
     }
 
-    IEnumerator BakeMesh()
+    IEnumerator DoThingsAfterFullyGenerated()
     {
         while (!isFullyGenerated) { yield return null; }
+
         surface.BuildNavMesh();
+
+        foreach (var enemy in GetComponentsInChildren<EnemyAI>(true))
+        {
+            enemy.gameObject.SetActive(true);
+        }
+
+        GetComponentInChildren<PlayerController>(true).gameObject.SetActive(true);
     }
 }

@@ -100,8 +100,9 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    void OnTriggerStay(Collider other)
+    void OnTriggerEnter(Collider other)
     {
+        Debug.Log("OnTriggerEnter called. Collider tag: " + other.tag);
         if (other.CompareTag("Noise")) //audio sensor
         {
             if (currentState != State.Chase && currentState != State.CheckSound)
@@ -115,10 +116,10 @@ public class EnemyAI : MonoBehaviour
                 {
                     distance += Vector3.Distance(path.corners[i], path.corners[i + 1]);
                 }
-                Debug.Log("distance: " + distance);
+                //Debug.Log("distance: " + distance);
 
                 float intensity = other.GetComponent<NoiseSource>().sourceIntensity / (distance * distance);
-                Debug.Log("intensity: " + intensity);
+                //Debug.Log("intensity: " + intensity);
 
                 if (intensity > hearingThreshold)
                 {
@@ -148,6 +149,7 @@ public class EnemyAI : MonoBehaviour
 
     void Idle()
     {
+        if (currentWaypoint == null) { return; }
         agent.SetDestination(currentWaypoint.GetPosition());
 
         if (ReachedDestination())

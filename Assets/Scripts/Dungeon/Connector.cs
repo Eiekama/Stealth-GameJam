@@ -39,7 +39,7 @@ public class Connector : MonoBehaviour
                 int chosenIndex = Random.Range(0, validConnectors.Length);
                 Connector chosenConnector = validConnectors[chosenIndex];
 
-                clonedPrefab = SpawnAdjacentRoom(chosenPrefab, chosenConnector.transform);
+                clonedPrefab = SpawnAdjacentRoom(chosenPrefab, chosenConnector.gameObject.transform);
 
                 // script communication
                 Validator[] chosenValidators = clonedPrefab.GetComponentsInChildren<Validator>();
