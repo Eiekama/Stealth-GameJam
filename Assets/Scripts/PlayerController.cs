@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (!GameManager.Instance.hasBeatenGame || !GameManager.Instance.isGameOver || !GameManager.Instance.isPaused)
+        if (!GameManager.Instance.hasBeatenGame && !GameManager.Instance.isGameOver && !GameManager.Instance.isPaused)
         {
             horizontalInput = Input.GetAxis("Horizontal");
             verticalInput = Input.GetAxis("Vertical");
