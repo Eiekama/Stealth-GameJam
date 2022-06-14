@@ -631,6 +631,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5699568740441049908, guid: ada3c9c01f5434d71a067fcd874b1785, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 963194227}
     - target: {fileID: 8289563720269340906, guid: ada3c9c01f5434d71a067fcd874b1785, type: 3}
       propertyPath: m_Name
       value: Enemy
@@ -784,6 +788,10 @@ PrefabInstance:
     - target: {fileID: 6147029882371582509, guid: ae76b261afe4a42ee84c4e42cbae53f7, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 6147029882371582509, guid: ae76b261afe4a42ee84c4e42cbae53f7, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6147029882371582510, guid: ae76b261afe4a42ee84c4e42cbae53f7, type: 3}
       propertyPath: m_RootOrder
@@ -1471,6 +1479,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1349036768}
   - component: {fileID: 1349036767}
+  - component: {fileID: 1349036769}
   m_Layer: 0
   m_Name: CM vcam1
   m_TagString: Untagged
@@ -1528,6 +1537,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1349036769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1349036766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 367c6590de08d4ecd9b9a0370194eeb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1409789834
 GameObject:
   m_ObjectHideFlags: 0

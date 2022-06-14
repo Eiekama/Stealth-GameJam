@@ -9,6 +9,8 @@ public class EnemyAI : MonoBehaviour
 {
     public NavMeshAgent agent;
     [SerializeField] Animator enemyAnim;
+    [SerializeField] Animator enemyUIAnim;
+    Canvas UICanvas;
 
     public float viewconeRange;
     public float viewconeAngle;
@@ -63,15 +65,21 @@ public class EnemyAI : MonoBehaviour
         agent.stoppingDistance = DefaultStoppingDistance;
         agent.speed = DefaultSpeed;
         if (OnChangeState == null) { OnChangeState = new UnityEvent(); }
+
+        UICanvas = GetComponentInChildren<Canvas>();
     }
 
     void Start()
     {
         OnChangeState.AddListener(ResetVariables);
+
+        UICanvas.worldCamera = Camera.main;
     }
 
     void Update()
     {
+        UICanvas.gameObject.transform.LookAt(UICanvas.gameObject.transform.position + Camera.main.gameObject.transform.forward, Camera.main.gameObject.transform.up);
+
         switch (currentState)
         {
             case State.Idle:
@@ -102,7 +110,6 @@ public class EnemyAI : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("OnTriggerEnter called. Collider tag: " + other.tag);
         if (other.CompareTag("Noise")) //audio sensor
         {
             if (currentState != State.Chase && currentState != State.CheckSound)
@@ -173,7 +180,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (!ChangedVariablesFor["Suspicious"])
         {
-            React();
+            if (!isReacting && !GameManager.Instance.isGameOver) { React(); }
 
             ChangedVariablesFor["Suspicious"] = true;
         }
@@ -185,7 +192,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (!ChangedVariablesFor["Turn"])
         {
-            React();
+            if (!isReacting) { React(); }
 
             Vector3 up = Vector3.Cross(transform.forward, playerPos - transform.position);
             targetRot = up.y < 0 ? transform.rotation * Quaternion.Euler(0, 180, 0) : transform.rotation * Quaternion.Euler(0, -180, 0);
@@ -211,22 +218,34 @@ public class EnemyAI : MonoBehaviour
     {
         if (!ChangedVariablesFor["Chase"])
         {
-            React();
+            if (!isReacting && !GameManager.Instance.isGameOver) { React(); }
 
             agent.speed *= 2;
+            agent.stoppingDistance = 1;
             enemyAnim.SetFloat("Speed_f", 2);
 
             ChangedVariablesFor["Chase"] = true;
         }
 
-        if (!isReacting) { agent.SetDestination(playerPos); }
+        if (!isReacting)
+        {
+            agent.SetDestination(playerPos);
+
+            if (agent.remainingDistance < agent.stoppingDistance && !GameManager.Instance.isGameOver)
+            {
+                GameManager.Instance.isGameOver = true;
+                agent.isStopped = true;
+                enemyAnim.SetTrigger("Attack_t");
+            }
+        }
     }
 
     void Search()
     {
         if (!ChangedVariablesFor["Search"])
         {
-            React();
+            if (GameManager.Instance.isGameOver) { agent.isStopped = false; }
+            else if (!isReacting && !GameManager.Instance.isGameOver) { React(); }
 
             agent.stoppingDistance = UnityEngine.Random.Range(0.5f, 1.5f);
             enemyAnim.SetFloat("Speed_f", 0);
@@ -251,7 +270,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (!ChangedVariablesFor["CheckSound"])
         {
-            React();
+            if (!isReacting) { React(); }
 
             ChangedVariablesFor["CheckSound"] = true;
         }
@@ -271,6 +290,9 @@ public class EnemyAI : MonoBehaviour
 
     void React()
     {
+        if (currentState == State.Chase) { enemyUIAnim.SetTrigger("Ex_t"); }
+        else { enemyUIAnim.SetTrigger("Qn_t"); }
+
         isReacting = true;
         agent.isStopped = true;
         enemyAnim.SetTrigger("React_t");

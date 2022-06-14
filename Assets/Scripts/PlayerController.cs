@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] Animator playerAnim;
+    public Animator playerAnim;
     [SerializeField] Transform playerTransform;
+    [SerializeField] Transform camRoot;
     Rigidbody playerRb;
 
     float horizontalInput;
@@ -20,6 +21,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] GameObject runningNoise;
 
     float currentSpeed;
+    bool isDead;
 
     void Awake()
     {
@@ -27,23 +29,34 @@ public class PlayerController : MonoBehaviour
         currentSpeed = walkingSpeed;
     }
 
+    private void Start()
+    {
+        VirtualCameraScript.virtualCam.Follow = camRoot;
+        VirtualCameraScript.virtualCam.LookAt = camRoot;
+    }
+
     void Update()
     {
-        horizontalInput = Input.GetAxis("Horizontal");
-        verticalInput = Input.GetAxis("Vertical");
+        if (!GameManager.Instance.hasBeatenGame || !GameManager.Instance.isGameOver || !GameManager.Instance.isPaused)
+        {
+            horizontalInput = Input.GetAxis("Horizontal");
+            verticalInput = Input.GetAxis("Vertical");
 
-        if (currentSpeed == walkingSpeed)
-        {
-            if (!walkingNoise.activeInHierarchy) { walkingNoise.SetActive(true); }
-            if (runningNoise.activeInHierarchy) { runningNoise.SetActive(false); }
-        } else if (currentSpeed == runningSpeed)
-        {
-            if (walkingNoise.activeInHierarchy) { walkingNoise.SetActive(false); }
-            if (!runningNoise.activeInHierarchy) { runningNoise.SetActive(true); }
-        } else
-        {
-            if (walkingNoise.activeInHierarchy) { walkingNoise.SetActive(false); }
-            if (runningNoise.activeInHierarchy) { runningNoise.SetActive(false); }
+            if (currentSpeed == walkingSpeed)
+            {
+                if (!walkingNoise.activeInHierarchy) { walkingNoise.SetActive(true); }
+                if (runningNoise.activeInHierarchy) { runningNoise.SetActive(false); }
+            }
+            else if (currentSpeed == runningSpeed)
+            {
+                if (walkingNoise.activeInHierarchy) { walkingNoise.SetActive(false); }
+                if (!runningNoise.activeInHierarchy) { runningNoise.SetActive(true); }
+            }
+            else
+            {
+                if (walkingNoise.activeInHierarchy) { walkingNoise.SetActive(false); }
+                if (runningNoise.activeInHierarchy) { runningNoise.SetActive(false); }
+            }
         }
 
         ManageAnimations();
@@ -54,10 +67,11 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 direction = new Vector3(horizontalInput, 0, verticalInput);
 
-        playerRb.MovePosition(playerTransform.position + currentSpeed * Time.deltaTime * direction);
-
         if (direction != Vector3.zero)
         {
+            if (direction.sqrMagnitude > 1) { direction = direction.normalized; }
+            playerRb.MovePosition(playerTransform.position + currentSpeed * Time.deltaTime * direction);
+
             Quaternion toRotation = Quaternion.LookRotation(direction, Vector3.up);
             playerTransform.rotation = Quaternion.RotateTowards(playerTransform.rotation, toRotation, rotationSpeed * Time.deltaTime);
         }
@@ -116,6 +130,12 @@ public class PlayerController : MonoBehaviour
                 currentSpeed = 0;
                 playerAnim.SetFloat("Speed_f", 0);
             }
+        }
+
+        if (GameManager.Instance.isGameOver && !isDead)
+        {
+            isDead = true;
+            playerAnim.SetTrigger("DeathForward_t");
         }
     }
 }

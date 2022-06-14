@@ -16,6 +16,11 @@ public class GameManager : MonoBehaviour
     public bool isGameOver;
     public bool isPaused;
 
+    [SerializeField] GameObject playerPrefab;
+    GameObject player;
+    Vector3 spawnPos;
+    Quaternion spawnRot;
+
     private void Awake()
     {
         if (Instance != null)
@@ -54,6 +59,14 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 0;
             winScreen.SetActive(true);
         }
+        else if (isGameOver)
+        {
+            if (!player.GetComponent<PlayerController>().playerAnim.GetCurrentAnimatorStateInfo(0).IsTag("Death")) { return; }
+            if (player.GetComponent<PlayerController>().playerAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) { return; }
+            Destroy(player.gameObject);
+            isGameOver = false;
+            player = Instantiate(playerPrefab, spawnPos, spawnRot);
+        }
     }
 
     IEnumerator WaitForDungeonGeneration()
@@ -61,5 +74,10 @@ public class GameManager : MonoBehaviour
         loadingScreen.SetActive(true);
         while (!dungeon.isFullyGenerated) { yield return null; }
         loadingScreen.SetActive(false);
+
+        player = GameObject.Find("Player");
+        Transform playerTransform = player.gameObject.transform;
+        spawnPos = playerTransform.position;
+        spawnRot = playerTransform.rotation;
     }
 }
