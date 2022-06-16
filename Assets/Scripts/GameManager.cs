@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && !isPaused && dungeon.isFullyGenerated)
         {
+            UIAudio.Instance.PlayPauseAudio();
             Time.timeScale = 0;
             pauseScreen.SetActive(true);
             isPaused = true;
@@ -63,9 +64,12 @@ public class GameManager : MonoBehaviour
         {
             if (!player.GetComponent<PlayerController>().playerAnim.GetCurrentAnimatorStateInfo(0).IsTag("Death")) { return; }
             if (player.GetComponent<PlayerController>().playerAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) { return; }
-            Destroy(player.gameObject);
+            player.SetActive(false);
             isGameOver = false;
-            player = Instantiate(playerPrefab, spawnPos, spawnRot);
+            player.transform.position = spawnPos;
+            player.transform.rotation = spawnRot;
+            player.GetComponent<PlayerController>().isDead = false;
+            player.SetActive(true);
         }
     }
 

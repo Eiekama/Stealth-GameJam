@@ -11,7 +11,7 @@ public class MenuAnimationBehaviour : StateMachineBehaviour
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (stateInfo.normalizedTime > 4)
+        if (stateInfo.normalizedTime > 2)
         {
             animator.SetBool("Look_b", true);
         }

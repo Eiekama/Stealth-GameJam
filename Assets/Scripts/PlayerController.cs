@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] GameObject runningNoise;
 
     float currentSpeed;
-    bool isDead;
+    public bool isDead;
 
     void Awake()
     {
@@ -33,6 +33,8 @@ public class PlayerController : MonoBehaviour
     {
         VirtualCameraScript.virtualCam.Follow = camRoot;
         VirtualCameraScript.virtualCam.LookAt = camRoot;
+
+        UIAudio.Instance.player = gameObject;
     }
 
     void Update()

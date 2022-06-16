@@ -11,6 +11,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] Animator enemyAnim;
     [SerializeField] Animator enemyUIAnim;
     Canvas UICanvas;
+    EnemyAudio enemyAudio;
 
     public float viewconeRange;
     public float viewconeAngle;
@@ -67,6 +68,7 @@ public class EnemyAI : MonoBehaviour
         if (OnChangeState == null) { OnChangeState = new UnityEvent(); }
 
         UICanvas = GetComponentInChildren<Canvas>();
+        enemyAudio = GetComponentInChildren<EnemyAudio>();
     }
 
     void Start()
@@ -291,11 +293,16 @@ public class EnemyAI : MonoBehaviour
     void React()
     {
         if (currentState == State.Chase) { enemyUIAnim.SetTrigger("Ex_t"); }
-        else { enemyUIAnim.SetTrigger("Qn_t"); }
+        else
+        {
+            enemyUIAnim.SetTrigger("Qn_t");
+            enemyAudio.ReactAudio();
+        }
 
         isReacting = true;
         agent.isStopped = true;
         enemyAnim.SetTrigger("React_t");
+
         StartCoroutine(WaitForReactEnd());
     }
 
@@ -323,6 +330,9 @@ public class EnemyAI : MonoBehaviour
         while (!enemyAnim.GetCurrentAnimatorStateInfo(0).IsTag("React")) { yield return null; } //wait for a few frames for the react anim to start playing
 
         while (enemyAnim.GetCurrentAnimatorStateInfo(0).IsTag("React")) { yield return null; } //returns true while react anim is playing
+
+        if (currentState == State.Chase) { enemyAudio.RoarAudio(); }
+
         isReacting = false;
         agent.isStopped = false;
     }
