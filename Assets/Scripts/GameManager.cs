@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject loadingScreen;
     [SerializeField] GameObject pauseScreen;
     [SerializeField] GameObject winScreen;
+    [SerializeField] ParticleSystem[] winVFXs;
 
     [SerializeField] DungeonGenerator dungeon;
 
@@ -55,9 +56,13 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 1;
             pauseScreen.SetActive(false);
         }
-        else if (hasBeatenGame)
+        else if (winScreen.activeInHierarchy == false && hasBeatenGame)
         {
             Time.timeScale = 0;
+            foreach (var particle in winVFXs)
+            {
+                particle.Play();
+            }
             winScreen.SetActive(true);
         }
         else if (isGameOver)

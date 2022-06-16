@@ -16,12 +16,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float walkingSpeed;
     [SerializeField] float runningSpeed;
     [SerializeField] float rotationSpeed;
+    [SerializeField] float MaxStamina = 10f;
 
     [SerializeField] GameObject walkingNoise;
     [SerializeField] GameObject runningNoise;
 
     float currentSpeed;
     public bool isDead;
+    float stamina;
 
     void Awake()
     {
@@ -35,6 +37,7 @@ public class PlayerController : MonoBehaviour
         VirtualCameraScript.virtualCam.LookAt = camRoot;
 
         UIAudio.Instance.player = gameObject;
+        stamina = MaxStamina;
     }
 
     void Update()
