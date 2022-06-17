@@ -23,12 +23,12 @@ public class EnemyAudio : MonoBehaviour
 
     public void LeftFootstepAudio()
     {
-        audioSource.PlayOneShot(leftFootstepClip, .7f);
+        audioSource.PlayOneShot(leftFootstepClip, .8f);
     }
 
     public void RightFootstepAudio()
     {
-        audioSource.PlayOneShot(rightFootstepClip, .7f);
+        audioSource.PlayOneShot(rightFootstepClip, .8f);
     }
 
     public void LeftFootRunAudio()

@@ -21,31 +21,31 @@ public class PlayerAudio : MonoBehaviour
 
     public void LeftFootstepAudio()
     {
-        audioSource.PlayOneShot(leftFootstepClip, .2f);
+        audioSource.PlayOneShot(leftFootstepClip, .3f);
     }
 
     public void RightFootstepAudio()
     {
-        audioSource.PlayOneShot(rightFootstepClip, .2f);
+        audioSource.PlayOneShot(rightFootstepClip, .3f);
     }
 
     public void LeftFootRunAudio()
     {
-        audioSource.PlayOneShot(leftFootRunClip, .3f);
+        audioSource.PlayOneShot(leftFootRunClip, .35f);
     }
 
     public void RightFootRunAudio()
     {
-        audioSource.PlayOneShot(rightFootRunClip, .3f);
+        audioSource.PlayOneShot(rightFootRunClip, .35f);
     }
 
     public void LeftFootCrouchAudio()
     {
-        audioSource.PlayOneShot(leftFootCrouchClip, .2f);
+        audioSource.PlayOneShot(leftFootCrouchClip, .25f);
     }
 
     public void RightFootCrouchAudio()
     {
-        audioSource.PlayOneShot(rightFootCrouchClip, .2f);
+        audioSource.PlayOneShot(rightFootCrouchClip, .25f);
     }
 }

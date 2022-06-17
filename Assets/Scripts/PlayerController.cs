@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float walkingSpeed;
     [SerializeField] float runningSpeed;
     [SerializeField] float rotationSpeed;
-    [SerializeField] float MaxStamina = 10f;
+    public readonly float MaxStamina = 10f;
 
     [SerializeField] GameObject walkingNoise;
     [SerializeField] GameObject runningNoise;
@@ -24,11 +24,28 @@ public class PlayerController : MonoBehaviour
     float currentSpeed;
     public bool isDead;
     float stamina;
+    public float Stamina
+    {
+        get { return stamina;}
+        private set
+        {
+            if (stamina > MaxStamina) { stamina = MaxStamina; }
+            else if (stamina < 0) { stamina = 0; }
+            else { stamina = value; }
+        }
+    }
+    public bool recovering;
+    public bool staminaFull;
+    [SerializeField] Animator staminaAnim;
 
     void Awake()
     {
         playerRb = GetComponent<Rigidbody>();
+
+        stamina = MaxStamina;
         currentSpeed = walkingSpeed;
+        staminaFull = true;
+        recovering = false;
     }
 
     private void Start()
@@ -37,7 +54,6 @@ public class PlayerController : MonoBehaviour
         VirtualCameraScript.virtualCam.LookAt = camRoot;
 
         UIAudio.Instance.player = gameObject;
-        stamina = MaxStamina;
     }
 
     void Update()
@@ -72,6 +88,21 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 direction = new Vector3(horizontalInput, 0, verticalInput);
 
+        if (!recovering && stamina <= 0) { recovering = true; }
+
+        if (stamina < MaxStamina)
+        {
+            if (currentSpeed == walkingSpeed) { stamina += Time.deltaTime * 1f; }
+            else if (direction == Vector3.zero) { stamina += Time.deltaTime * 2f; }
+        }
+        else if (!staminaFull && stamina >= MaxStamina)
+        {
+            staminaAnim.SetTrigger("FadeOut_t");
+
+            recovering = false;
+            staminaFull = true;
+        }
+
         if (direction != Vector3.zero)
         {
             if (direction.sqrMagnitude > 1) { direction = direction.normalized; }
@@ -79,6 +110,16 @@ public class PlayerController : MonoBehaviour
 
             Quaternion toRotation = Quaternion.LookRotation(direction, Vector3.up);
             playerTransform.rotation = Quaternion.RotateTowards(playerTransform.rotation, toRotation, rotationSpeed * Time.deltaTime);
+
+            if (currentSpeed == runningSpeed)
+            {
+                if (staminaFull)
+                {
+                    staminaAnim.SetTrigger("FadeIn_t");
+                    staminaFull = false;
+                }
+                stamina -= Time.deltaTime * 3f;
+            }
         }
 
     }
@@ -101,7 +142,7 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.X))
             {
-                if (currentSpeed != runningSpeed)
+                if (currentSpeed != runningSpeed && stamina > 0 && !recovering)
                 {
                     currentSpeed = runningSpeed;
                     playerAnim.SetFloat("Speed_f", runningSpeed);
@@ -109,6 +150,11 @@ public class PlayerController : MonoBehaviour
                     {
                         playerAnim.SetBool("IsCrouching_b", false);
                     }
+                }
+                else if (currentSpeed != walkingSpeed && recovering)
+                {
+                    currentSpeed = walkingSpeed;
+                    playerAnim.SetFloat("Speed_f", walkingSpeed);
                 }
             }
             else if (playerAnim.GetBool("IsCrouching_b"))
