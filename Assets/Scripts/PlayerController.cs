@@ -1,32 +1,33 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Player Components")]
+    public Transform playerModel;
     public Animator playerAnim;
-    [SerializeField] Transform playerTransform;
-    [SerializeField] Transform camRoot;
-    Rigidbody playerRb;
+    [SerializeField] Transform cameraRoot;
+    [SerializeField] Animator staminaAnim;
 
-    float horizontalInput;
-    float verticalInput;
-
+    [Header("Player Movement Stats")]
     [SerializeField] float crouchingSpeed;
     [SerializeField] float walkingSpeed;
     [SerializeField] float runningSpeed;
     [SerializeField] float rotationSpeed;
+
+    [Header("Stamina")]
+    [SerializeField] float runningLoseRate;
+    [SerializeField] float idleRecoveryRate;
+    [SerializeField] float walkingRecoveryRate;
+
     public readonly float MaxStamina = 10f;
-
-    [SerializeField] GameObject walkingNoise;
-    [SerializeField] GameObject runningNoise;
-
-    float currentSpeed;
-    public bool isDead;
     float stamina;
     public float Stamina
     {
-        get { return stamina;}
+        get { return stamina; }
         private set
         {
             if (stamina > MaxStamina) { stamina = MaxStamina; }
@@ -34,9 +35,40 @@ public class PlayerController : MonoBehaviour
             else { stamina = value; }
         }
     }
+
+
+    [Header("Noise Sources")]
+    [SerializeField] GameObject walkingNoise;
+    [SerializeField] GameObject runningNoise;
+
+    [Header("Player States")]
+    public bool isDead;
     public bool recovering;
     public bool staminaFull;
-    [SerializeField] Animator staminaAnim;
+
+    public enum MovementState
+    {
+        Idle,
+        Walking,
+        Running,
+        Crouch_Idle,
+        Crouch_Walking
+    }
+    MovementState currentMovementState;
+    MovementState previousMovementState;
+    bool[] CalledOnceForMovementState = new bool[Enum.GetNames(typeof(MovementState)).Length];
+    UnityEvent OnChangedMovementState = new UnityEvent();
+
+    Rigidbody playerRb;
+
+    float currentSpeed;
+
+    bool isCrouching;
+
+    float horizontalInput;
+    float verticalInput;
+
+   
 
     void Awake()
     {
@@ -44,16 +76,16 @@ public class PlayerController : MonoBehaviour
 
         stamina = MaxStamina;
         currentSpeed = walkingSpeed;
-        staminaFull = true;
-        recovering = false;
     }
 
-    private void Start()
+    void Start()
     {
-        VirtualCameraScript.virtualCam.Follow = camRoot;
-        VirtualCameraScript.virtualCam.LookAt = camRoot;
+        VirtualCameraScript.virtualCam.Follow = cameraRoot;
+        VirtualCameraScript.virtualCam.LookAt = cameraRoot;
 
         UIAudio.Instance.player = gameObject;
+
+        OnChangedMovementState.AddListener(ResetCalledOnceBooleans);
     }
 
     void Update()
@@ -63,37 +95,155 @@ public class PlayerController : MonoBehaviour
             horizontalInput = Input.GetAxis("Horizontal");
             verticalInput = Input.GetAxis("Vertical");
 
-            if (currentSpeed == walkingSpeed)
-            {
-                if (!walkingNoise.activeInHierarchy) { walkingNoise.SetActive(true); }
-                if (runningNoise.activeInHierarchy) { runningNoise.SetActive(false); }
-            }
-            else if (currentSpeed == runningSpeed)
-            {
-                if (walkingNoise.activeInHierarchy) { walkingNoise.SetActive(false); }
-                if (!runningNoise.activeInHierarchy) { runningNoise.SetActive(true); }
-            }
-            else
-            {
-                if (walkingNoise.activeInHierarchy) { walkingNoise.SetActive(false); }
-                if (runningNoise.activeInHierarchy) { runningNoise.SetActive(false); }
-            }
+            previousMovementState = currentMovementState;
+            currentMovementState = GetCurrentMovementState();
+
+            if (previousMovementState != currentMovementState) { OnChangedMovementState.Invoke(); }
+
+            ManagePlayerMovement();
+
+            ManageStaminaState();
         }
 
-        ManageAnimations();
+        ManageDeath();
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         Vector3 direction = new Vector3(horizontalInput, 0, verticalInput);
+        MoveTowards(direction);
+    }
 
+    void MoveTowards(Vector3 direction)
+    {
+        if (direction == Vector3.zero) { return; }
+        if (direction.sqrMagnitude > 1) { direction = direction.normalized; }
+        playerRb.MovePosition(playerModel.position + currentSpeed * Time.deltaTime * direction);
+
+        Quaternion toRotation = Quaternion.LookRotation(direction, Vector3.up);
+        playerModel.rotation = Quaternion.RotateTowards(playerModel.rotation, toRotation, rotationSpeed * Time.deltaTime);
+    }
+
+    MovementState GetCurrentMovementState()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            if (!isCrouching) { isCrouching = true; }
+            else { isCrouching = false; }
+        }
+
+        if (Mathf.Abs(horizontalInput) + Mathf.Abs(verticalInput) == 0) { return isCrouching ? MovementState.Crouch_Idle : MovementState.Idle; }
+        else // player is moving
+        {
+            if (recovering || !Input.GetKey(KeyCode.X)) { return isCrouching? MovementState.Crouch_Walking: MovementState.Walking; }
+            else { return MovementState.Running; }
+        }
+    }
+
+    void ManagePlayerMovement()
+    {
+        switch (currentMovementState)
+        {
+            case MovementState.Idle:
+                if (!CalledOnceForMovementState[(int)MovementState.Idle])
+                {
+                    playerAnim.SetBool("IsCrouching_b", false);
+
+                    currentSpeed = 0;
+                    playerAnim.SetFloat("Speed_f", 0);
+
+                    walkingNoise.SetActive(false);
+                    runningNoise.SetActive(false);
+
+                    CalledOnceForMovementState[(int)MovementState.Idle] = true;
+                }
+
+                if (stamina < MaxStamina) { stamina += Time.deltaTime * idleRecoveryRate; }
+
+                break;
+
+            case MovementState.Walking:
+                if (!CalledOnceForMovementState[(int)MovementState.Walking])
+                {
+                    playerAnim.SetBool("IsCrouching_b", false);
+
+                    currentSpeed = walkingSpeed;
+                    playerAnim.SetFloat("Speed_f", walkingSpeed);
+
+                    walkingNoise.SetActive(true);
+                    runningNoise.SetActive(false);
+
+                    CalledOnceForMovementState[(int)MovementState.Walking] = true;
+                }
+
+                if (stamina < MaxStamina) { stamina += Time.deltaTime * walkingRecoveryRate; }
+
+                break;
+
+            case MovementState.Running:
+                if (!CalledOnceForMovementState[(int)MovementState.Running])
+                {
+                    playerAnim.SetBool("IsCrouching_b", false);
+
+                    currentSpeed = runningSpeed;
+                    playerAnim.SetFloat("Speed_f", runningSpeed);
+
+                    walkingNoise.SetActive(false);
+                    runningNoise.SetActive(true);
+
+                    CalledOnceForMovementState[(int)MovementState.Running] = true;
+                }
+
+                stamina -= Time.deltaTime * runningLoseRate;
+
+                break;
+
+            case MovementState.Crouch_Idle:
+                if (!CalledOnceForMovementState[(int)MovementState.Crouch_Idle])
+                {
+                    playerAnim.SetBool("IsCrouching_b", true);
+
+                    currentSpeed = 0;
+                    playerAnim.SetFloat("Speed_f", 0);
+
+                    walkingNoise.SetActive(false);
+                    runningNoise.SetActive(false);
+
+                    CalledOnceForMovementState[(int)MovementState.Crouch_Idle] = true;
+                }
+
+                if (stamina < MaxStamina) { stamina += Time.deltaTime * idleRecoveryRate; }
+
+                break;
+
+            case MovementState.Crouch_Walking:
+                if (!CalledOnceForMovementState[(int)MovementState.Crouch_Walking])
+                {
+                    playerAnim.SetBool("IsCrouching_b", true);
+
+                    currentSpeed = walkingSpeed;
+                    playerAnim.SetFloat("Speed_f", walkingSpeed);
+
+                    walkingNoise.SetActive(false);
+                    runningNoise.SetActive(false);
+
+                    CalledOnceForMovementState[(int)MovementState.Crouch_Walking] = true;
+                }
+
+                if (stamina < MaxStamina) { stamina += Time.deltaTime * walkingRecoveryRate; }
+
+                break;
+        }
+    }
+
+    void ManageStaminaState()
+    {
         if (!recovering && stamina <= 0) { recovering = true; }
 
-        if (stamina < MaxStamina)
+        if (staminaFull && currentMovementState == MovementState.Running)
         {
-            if (currentSpeed == walkingSpeed) { stamina += Time.deltaTime * 1f; }
-            else if (direction == Vector3.zero) { stamina += Time.deltaTime * 2f; }
+            staminaAnim.SetTrigger("FadeIn_t");
+            staminaFull = false;
         }
         else if (!staminaFull && stamina >= MaxStamina)
         {
@@ -102,91 +252,22 @@ public class PlayerController : MonoBehaviour
             recovering = false;
             staminaFull = true;
         }
-
-        if (direction != Vector3.zero)
-        {
-            if (direction.sqrMagnitude > 1) { direction = direction.normalized; }
-            playerRb.MovePosition(playerTransform.position + currentSpeed * Time.deltaTime * direction);
-
-            Quaternion toRotation = Quaternion.LookRotation(direction, Vector3.up);
-            playerTransform.rotation = Quaternion.RotateTowards(playerTransform.rotation, toRotation, rotationSpeed * Time.deltaTime);
-
-            if (currentSpeed == runningSpeed)
-            {
-                if (staminaFull)
-                {
-                    staminaAnim.SetTrigger("FadeIn_t");
-                    staminaFull = false;
-                }
-                stamina -= Time.deltaTime * 3f;
-            }
-        }
-
     }
 
-    void ManageAnimations()
+    void ManageDeath()
     {
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            if (!playerAnim.GetBool("IsCrouching_b"))
-            {
-                playerAnim.SetBool("IsCrouching_b", true);
-            }
-            else
-            {
-                playerAnim.SetBool("IsCrouching_b", false);
-            }
-        }
-
-        if (Mathf.Abs(horizontalInput) + Mathf.Abs(verticalInput) > 0) //if player is moving
-        {
-            if (Input.GetKey(KeyCode.X))
-            {
-                if (currentSpeed != runningSpeed && stamina > 0 && !recovering)
-                {
-                    currentSpeed = runningSpeed;
-                    playerAnim.SetFloat("Speed_f", runningSpeed);
-                    if (playerAnim.GetBool("IsCrouching_b"))
-                    {
-                        playerAnim.SetBool("IsCrouching_b", false);
-                    }
-                }
-                else if (currentSpeed != walkingSpeed && recovering)
-                {
-                    currentSpeed = walkingSpeed;
-                    playerAnim.SetFloat("Speed_f", walkingSpeed);
-                }
-            }
-            else if (playerAnim.GetBool("IsCrouching_b"))
-            {
-                if (currentSpeed != crouchingSpeed)
-                {
-                    currentSpeed = crouchingSpeed;
-                    playerAnim.SetFloat("Speed_f", crouchingSpeed);
-                }
-            }
-            else
-            {
-                if (currentSpeed != walkingSpeed)
-                {
-                    currentSpeed = walkingSpeed;
-                    playerAnim.SetFloat("Speed_f", walkingSpeed);
-                }
-            }
-        }
-        else // player not moving
-        {
-            if (currentSpeed != 0)
-            {
-                currentSpeed = 0;
-                playerAnim.SetFloat("Speed_f", 0);
-            }
-        }
-
         if (GameManager.Instance.isGameOver && !isDead)
         {
             isDead = true;
             playerAnim.SetTrigger("DeathForward_t");
+        }
+    }
+
+    void ResetCalledOnceBooleans()
+    {
+        for (int i = 0; i < CalledOnceForMovementState.Length; i++)
+        {
+            CalledOnceForMovementState[i] = false;
         }
     }
 }

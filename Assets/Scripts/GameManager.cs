@@ -69,12 +69,12 @@ public class GameManager : MonoBehaviour
         {
             if (!player.GetComponent<PlayerController>().playerAnim.GetCurrentAnimatorStateInfo(0).IsTag("Death")) { return; }
             if (player.GetComponent<PlayerController>().playerAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) { return; }
-            player.SetActive(false);
+            player.GetComponent<PlayerController>().playerModel.gameObject.SetActive(false);
             isGameOver = false;
             player.transform.position = spawnPos;
             player.transform.rotation = spawnRot;
             player.GetComponent<PlayerController>().isDead = false;
-            player.SetActive(true);
+            player.GetComponent<PlayerController>().playerModel.gameObject.SetActive(true);
         }
     }
 

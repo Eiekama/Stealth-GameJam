@@ -359,8 +359,8 @@ CanvasGroup:
   m_GameObject: {fileID: 5991897469440720020}
   m_Enabled: 1
   m_Alpha: 0
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1 &6147029882371582509
 GameObject:
@@ -410,19 +410,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b319d2c37396c4a989d9015688c0148d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerModel: {fileID: 8759976637805577333}
   playerAnim: {fileID: 2367509279743023518}
-  playerTransform: {fileID: 8759976637805577333}
-  camRoot: {fileID: 6147029884091293815}
+  cameraRoot: {fileID: 6147029884091293815}
+  staminaAnim: {fileID: 5981658948740515395}
   crouchingSpeed: 1
   walkingSpeed: 1.5
   runningSpeed: 3.5
   rotationSpeed: 360
+  runningLoseRate: 3
+  idleRecoveryRate: 2
+  walkingRecoveryRate: 1
   walkingNoise: {fileID: 874466470}
   runningNoise: {fileID: 453338099686064770}
   isDead: 0
   recovering: 0
-  staminaFull: 0
-  staminaAnim: {fileID: 5981658948740515395}
+  staminaFull: 1
 --- !u!54 &912312768499724264
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -806,6 +809,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 9329a6bf61329462c83855877e2cd9c7, type: 3}
       propertyPath: m_Layer
       value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9329a6bf61329462c83855877e2cd9c7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1082271958561512970, guid: 9329a6bf61329462c83855877e2cd9c7, type: 3}
       propertyPath: m_Layer
