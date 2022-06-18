@@ -16,23 +16,13 @@ public class Direct : Viewcone
     {
         base.OnSeePlayer(player);
 
-        if (enemy.currentState != EnemyAI.State.Chase)
-        {
-            Debug.Log("State changed to Chase");
-            enemy.OnChangeState.Invoke();
-            enemy.currentState = EnemyAI.State.Chase;
-        }
+        enemy.currentState = enemy.TryGetNewState(EnemyAI.State.Chase);
     }
 
     protected override void OnLosePlayer(Transform player)
     {
         base.OnLosePlayer(player);
 
-        if (enemy.currentState == EnemyAI.State.Chase)
-        {
-            Debug.Log("State changed to Search");
-            enemy.OnChangeState.Invoke();
-            enemy.currentState = EnemyAI.State.Search;
-        }
+        enemy.currentState = enemy.TryGetNewState(EnemyAI.State.Search);
     }
 }

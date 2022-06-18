@@ -7,12 +7,16 @@ using UnityEngine.Events;
 
 public class EnemyAI : MonoBehaviour
 {
-    public NavMeshAgent agent;
+    [Header("Enemy Components")]
     [SerializeField] Animator enemyAnim;
     [SerializeField] Animator enemyUIAnim;
-    Canvas UICanvas;
+
+    NavMeshAgent agent;
+    Canvas enemyUICanvas;
     EnemyAudio enemyAudio;
 
+
+    [Header("Enemy Stats")]
     public float viewconeRange;
     public float viewconeAngle;
     public float peripheralRange;
@@ -23,6 +27,9 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] float DefaultStoppingDistance = 0.5f;
     [SerializeField] float DefaultSpeed = .5f;
 
+    [Header("Enemy State")]
+    public State currentState;
+
     public enum State
     {
         Idle,
@@ -32,28 +39,21 @@ public class EnemyAI : MonoBehaviour
         Search,
         CheckSound
     }
-    public State currentState;
+    bool[] CalledOnceForState = new bool[Enum.GetNames(typeof(State)).Length];
+    public UnityEvent OnChangeState = new UnityEvent();
 
-    public UnityEvent OnChangeState;
 
-    Dictionary<string, bool> ChangedVariablesFor = new Dictionary<string, bool>
-    {
-        { Enum.GetName(typeof(State), 0), false },
-        { Enum.GetName(typeof(State), 1), false },
-        { Enum.GetName(typeof(State), 2), false },
-        { Enum.GetName(typeof(State), 3), false },
-        { Enum.GetName(typeof(State), 4), false },
-        { Enum.GetName(typeof(State), 5), false }
-    };
-
+    [Header("Patrol Path Waypoint")]
     [SerializeField] Waypoint currentWaypoint;
+
     bool changedDir;
 
+    [Header("References to Player")]
     public Vector3 playerPos;
+    public Vector3 lastSeenPos;
+
 
     Quaternion targetRot;
-
-    public Vector3 lastSeenPos;
 
     Vector3 soundPos;
 
@@ -65,9 +65,8 @@ public class EnemyAI : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.stoppingDistance = DefaultStoppingDistance;
         agent.speed = DefaultSpeed;
-        if (OnChangeState == null) { OnChangeState = new UnityEvent(); }
 
-        UICanvas = GetComponentInChildren<Canvas>();
+        enemyUICanvas = GetComponentInChildren<Canvas>();
         enemyAudio = GetComponentInChildren<EnemyAudio>();
     }
 
@@ -75,38 +74,41 @@ public class EnemyAI : MonoBehaviour
     {
         OnChangeState.AddListener(ResetVariables);
 
-        UICanvas.worldCamera = Camera.main;
+        enemyUICanvas.worldCamera = Camera.main;
     }
 
     void Update()
     {
-        UICanvas.gameObject.transform.LookAt(UICanvas.gameObject.transform.position + Camera.main.gameObject.transform.forward, Camera.main.gameObject.transform.up);
+        FaceCamera(enemyUICanvas);
 
-        switch (currentState)
+        if (!isReacting)
         {
-            case State.Idle:
-                Idle();
-                break;
+            switch (currentState)
+            {
+                case State.Idle:
+                    Idle();
+                    break;
 
-            case State.Suspicious:
-                Suspicious();
-                break;
+                case State.Suspicious:
+                    Suspicious();
+                    break;
 
-            case State.Turn:
-                Turn();
-                break;
+                case State.Turn:
+                    Turn();
+                    break;
 
-            case State.Chase:
-                Chase();
-                break;
+                case State.Chase:
+                    Chase();
+                    break;
 
-            case State.Search:
-                Search();
-                break;
+                case State.Search:
+                    Search();
+                    break;
 
-            case State.CheckSound:
-                CheckSound();
-                break;
+                case State.CheckSound:
+                    CheckSound();
+                    break;
+            }
         }
     }
 
@@ -116,49 +118,137 @@ public class EnemyAI : MonoBehaviour
         {
             if (currentState != State.Chase && currentState != State.CheckSound)
             {
-                soundPos = new Vector3(other.gameObject.transform.position.x, 0, other.gameObject.transform.position.z);
-
-                NavMeshPath path = new NavMeshPath();
-                agent.CalculatePath(soundPos, path);
-                float distance = 0;
-                for (int i = 0; i < path.corners.Length - 1; i++)
-                {
-                    distance += Vector3.Distance(path.corners[i], path.corners[i + 1]);
-                }
-                //Debug.Log("distance: " + distance);
-
-                float intensity = other.GetComponent<NoiseSource>().sourceIntensity / (distance * distance);
-                //Debug.Log("intensity: " + intensity);
+                float intensity = CalculateSoundIntensity(other.gameObject);
 
                 if (intensity > hearingThreshold)
                 {
-                    Debug.Log("State changed to CheckSound");
-                    OnChangeState.Invoke();
-                    currentState = State.CheckSound;
+                    currentState = TryGetNewState(State.CheckSound);
                 }
             }
         }
     }
 
-    // temporary functions so that enemy wont push around player when they catch up
-    private void OnCollisionEnter(Collision collision)
+    float CalculateSoundIntensity(GameObject source)
     {
-        if (collision.collider.CompareTag("Player"))
+        soundPos = new Vector3(source.transform.position.x, 0, source.transform.position.z);
+
+        NavMeshPath path = new NavMeshPath();
+        agent.CalculatePath(soundPos, path);
+        float distance = 0;
+        for (int i = 0; i < path.corners.Length - 1; i++)
         {
-            agent.isStopped = true;
+            distance += Vector3.Distance(path.corners[i], path.corners[i + 1]);
+        }
+
+        if (source.GetComponent<NoiseSource>() == null) { Debug.LogError(source.name + " does not have NoiseSource script."); }
+
+        return source.GetComponent<NoiseSource>().sourceIntensity / (distance * distance);
+    }
+
+    void FaceCamera(Canvas canvas)
+    {
+        if (!AllChildrenAreInactive(canvas.gameObject))
+        {
+            canvas.gameObject.transform.LookAt(canvas.gameObject.transform.position + canvas.worldCamera.gameObject.transform.forward, canvas.worldCamera.gameObject.transform.up);
         }
     }
-    private void OnCollisionExit(Collision collision)
+
+    bool AllChildrenAreInactive(GameObject gameObject)
     {
-        if (collision.collider.CompareTag("Player"))
+        for (int i = 0; i < gameObject.transform.childCount; i++)
         {
-            agent.isStopped = false;
+            if (gameObject.transform.GetChild(i).gameObject.activeInHierarchy) { return false; }
         }
+        return true;
+    }
+
+    public State TryGetNewState(State newState)
+    {
+        if (newState == State.Idle)
+        {
+            if (currentState != State.Chase && currentState != State.Idle)
+            {
+                Debug.Log("State changed to Idle");
+                OnChangeState.Invoke();
+                return newState;
+            }
+            else { return currentState; }
+        }
+
+        else if (newState == State.Suspicious)
+        {
+            if (currentState == State.Idle || currentState == State.Turn || currentState == State.CheckSound)
+            {
+                Debug.Log("State changed to Suspicious");
+                OnChangeState.Invoke();
+                return newState;
+            }
+            else { return currentState; }
+        }
+
+        else if (newState == State.Turn)
+        {
+            if (currentState == State.Idle || currentState == State.Suspicious || currentState == State.CheckSound)
+            {
+                Debug.Log("State changed to Turn");
+                OnChangeState.Invoke();
+                return newState;
+            }
+            else { return currentState; }
+        }
+
+        else if (newState == State.Chase)
+        {
+            if (currentState != State.Chase)
+            {
+                Debug.Log("State changed to Chase");
+                OnChangeState.Invoke();
+                return newState;
+            }
+            else { return currentState; }
+        }
+
+        else if (newState == State.Search)
+        {
+            if (currentState == State.Chase)
+            {
+                Debug.Log("State changed to Search");
+                OnChangeState.Invoke();
+                return newState;
+            }
+            else { return currentState; }
+        }
+
+        else if (newState == State.CheckSound)
+        {
+            if (currentState == State.Idle || currentState == State.Turn || currentState == State.Search)
+            {
+                Debug.Log("State changed to CheckSound");
+                OnChangeState.Invoke();
+                return newState;
+            }
+            else { return currentState; }
+        }
+
+        Debug.LogError("Given state not equals to any considered in function. Check if forgot to add new else if statement.");
+        return currentState;
     }
 
     void Idle()
     {
+        if (!CalledOnceForState[(int)State.Idle])
+        {
+            enemyUIAnim.SetBool("Qn_b", false);
+
+            OnChangeState.AddListener(React);
+
+            enemyAnim.SetFloat("Speed_f", 0);
+
+            CalledOnceForState[(int)State.Idle] = true;
+        }
+
         if (currentWaypoint == null) { return; }
+
         agent.SetDestination(currentWaypoint.GetPosition());
 
         if (ReachedDestination())
@@ -180,130 +270,127 @@ public class EnemyAI : MonoBehaviour
 
     void Suspicious()
     {
-        if (!ChangedVariablesFor["Suspicious"])
+        if (!CalledOnceForState[(int)State.Suspicious])
         {
-            if (!isReacting && !GameManager.Instance.isGameOver) { React(); }
+            OnChangeState.RemoveListener(React);
 
-            ChangedVariablesFor["Suspicious"] = true;
+            CalledOnceForState[(int)State.Suspicious] = true;
         }
-
-        if (!isReacting) { agent.SetDestination(playerPos); }
+        agent.SetDestination(playerPos);
     }
 
     void Turn()
     {
-        if (!ChangedVariablesFor["Turn"])
+        if (!CalledOnceForState[(int)State.Turn])
         {
-            if (!isReacting) { React(); }
+            OnChangeState.RemoveListener(React);
 
             Vector3 up = Vector3.Cross(transform.forward, playerPos - transform.position);
             targetRot = up.y < 0 ? transform.rotation * Quaternion.Euler(0, 180, 0) : transform.rotation * Quaternion.Euler(0, -180, 0);
 
-            ChangedVariablesFor["Turn"] = true;
+            CalledOnceForState[(int)State.Turn] = true;
         }
 
-        if (!isReacting)
-        {
-            agent.ResetPath();
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, agent.angularSpeed * Time.deltaTime);
+        agent.ResetPath();
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, agent.angularSpeed * Time.deltaTime);
 
-            if (transform.rotation == targetRot && currentState == State.Turn)
-            {
-                Debug.Log("State changed to Idle");
-                OnChangeState.Invoke();
-                currentState = State.Idle;
-            }
+        if (transform.rotation == targetRot && currentState == State.Turn)
+        {
+            currentState = TryGetNewState(State.Idle);
         }
     }
 
     void Chase()
     {
-        if (!ChangedVariablesFor["Chase"])
+        if (!CalledOnceForState[(int)State.Chase])
         {
-            if (!isReacting && !GameManager.Instance.isGameOver) { React(); }
+            enemyUIAnim.SetBool("Qn_b", false);
+            enemyUIAnim.SetTrigger("Ex_t");
+            enemyAudio.RoarAudio();
+
+            OnChangeState.AddListener(React);
 
             agent.speed *= 2;
             agent.stoppingDistance = 1;
             enemyAnim.SetFloat("Speed_f", 2);
 
-            ChangedVariablesFor["Chase"] = true;
+            CalledOnceForState[(int)State.Chase] = true;
         }
 
-        if (!isReacting)
-        {
-            agent.SetDestination(playerPos);
+        agent.SetDestination(playerPos);
 
-            if (agent.remainingDistance < agent.stoppingDistance && !GameManager.Instance.isGameOver)
-            {
-                GameManager.Instance.isGameOver = true;
-                agent.isStopped = true;
-                enemyAnim.SetTrigger("Attack_t");
-            }
+        if (agent.remainingDistance < agent.stoppingDistance && !GameManager.Instance.isGameOver)
+        {
+            GameManager.Instance.isGameOver = true;
+            agent.isStopped = true;
+            enemyAnim.SetTrigger("Attack_t");
         }
     }
 
     void Search()
     {
-        if (!ChangedVariablesFor["Search"])
+        if (!CalledOnceForState[(int)State.Search])
         {
-            if (GameManager.Instance.isGameOver) { agent.isStopped = false; }
-            else if (!isReacting && !GameManager.Instance.isGameOver) { React(); }
+            OnChangeState.RemoveListener(React);
+
+            agent.isStopped = false;
 
             agent.stoppingDistance = UnityEngine.Random.Range(0.5f, 1.5f);
             enemyAnim.SetFloat("Speed_f", 0);
 
-            ChangedVariablesFor["Search"] = true;
+            CalledOnceForState[(int)State.Search] = true;
         }
 
-        if (!isReacting)
-        {
-            agent.SetDestination(lastSeenPos);
+        agent.SetDestination(lastSeenPos);
 
-            if (ReachedDestination())
-            {
-                Debug.Log("State changed to Idle");
-                OnChangeState.Invoke();
-                currentState = State.Idle;
-            }
+        if (ReachedDestination())
+        {
+            currentState = TryGetNewState(State.Idle);
         }
     }
 
     void CheckSound()
     {
-        if (!ChangedVariablesFor["CheckSound"])
+        if (!CalledOnceForState[(int)State.CheckSound])
         {
-            if (!isReacting) { React(); }
+            OnChangeState.AddListener(React);
 
-            ChangedVariablesFor["CheckSound"] = true;
+            enemyAnim.SetFloat("Speed_f", 0);
+
+            CalledOnceForState[(int)State.Idle] = true;
         }
 
-        if (!isReacting)
-        {
-            agent.SetDestination(soundPos);
+        agent.SetDestination(soundPos);
 
-            if (ReachedDestination())
-            {
-                Debug.Log("State changed to Idle");
-                OnChangeState.Invoke();
-                currentState = State.Idle;
-            }
+        if (ReachedDestination())
+        {
+            currentState = TryGetNewState(State.Idle);
         }
     }
 
     void React()
     {
-        if (currentState == State.Chase) { enemyUIAnim.SetTrigger("Ex_t"); }
-        else
+        if (!isReacting && !GameManager.Instance.isGameOver)
         {
-            enemyUIAnim.SetTrigger("Qn_t");
+            enemyUIAnim.SetBool("Qn_b", true);
             enemyAudio.ReactAudio();
+
+            isReacting = true;
+            agent.isStopped = true;
+            enemyAnim.SetTrigger("React_t");
+
+            StartCoroutine(WaitForReactEnd());
         }
+    }
 
-        isReacting = true;
-        agent.isStopped = true;
-        enemyAnim.SetTrigger("React_t");
+    IEnumerator WaitForReactEnd()
+    {
+        while (!enemyAnim.GetCurrentAnimatorStateInfo(0).IsTag("React")) { yield return null; } //wait for a few frames for the react anim to start playing
 
-        StartCoroutine(WaitForReactEnd());
+        while (enemyAnim.GetCurrentAnimatorStateInfo(0).IsTag("React")) { yield return null; } //returns true while react anim is playing
+
+        isReacting = false;
+        agent.isStopped = false;
     }
 
     bool ReachedDestination()
@@ -319,21 +406,9 @@ public class EnemyAI : MonoBehaviour
         agent.speed = DefaultSpeed;
         agent.stoppingDistance = DefaultStoppingDistance;
 
-        foreach (var state in Enum.GetNames(typeof(State)))
+        for (int i = 0; i < CalledOnceForState.Length; i++)
         {
-            if (ChangedVariablesFor[state]) { ChangedVariablesFor[state] = false; }
+            if (CalledOnceForState[i]) { CalledOnceForState[i] = false; }
         }
-    }
-
-    IEnumerator WaitForReactEnd()
-    {
-        while (!enemyAnim.GetCurrentAnimatorStateInfo(0).IsTag("React")) { yield return null; } //wait for a few frames for the react anim to start playing
-
-        while (enemyAnim.GetCurrentAnimatorStateInfo(0).IsTag("React")) { yield return null; } //returns true while react anim is playing
-
-        if (currentState == State.Chase) { enemyAudio.RoarAudio(); }
-
-        isReacting = false;
-        agent.isStopped = false;
     }
 }

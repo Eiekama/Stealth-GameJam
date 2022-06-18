@@ -16,11 +16,6 @@ public class SixthSense : Viewcone
     {
         base.OnSeePlayer(player);
 
-        if (enemy.currentState == EnemyAI.State.Idle || enemy.currentState == EnemyAI.State.CheckSound)
-        {
-            Debug.Log("State changed to Turn");
-            enemy.OnChangeState.Invoke();
-            enemy.currentState = EnemyAI.State.Turn;
-        }
+        enemy.currentState = enemy.TryGetNewState(EnemyAI.State.Turn);
     }
 }

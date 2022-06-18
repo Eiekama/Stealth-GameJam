@@ -18,6 +18,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float runningSpeed;
     [SerializeField] float rotationSpeed;
 
+    float currentSpeed;
+
+
     [Header("Stamina")]
     [SerializeField] float runningLoseRate;
     [SerializeField] float idleRecoveryRate;
@@ -59,16 +62,14 @@ public class PlayerController : MonoBehaviour
     bool[] CalledOnceForMovementState = new bool[Enum.GetNames(typeof(MovementState)).Length];
     UnityEvent OnChangedMovementState = new UnityEvent();
 
-    Rigidbody playerRb;
-
-    float currentSpeed;
-
     bool isCrouching;
+
+
+    Rigidbody playerRb;
 
     float horizontalInput;
     float verticalInput;
 
-   
 
     void Awake()
     {
@@ -100,7 +101,7 @@ public class PlayerController : MonoBehaviour
 
             if (previousMovementState != currentMovementState) { OnChangedMovementState.Invoke(); }
 
-            ManagePlayerMovement();
+            ManageMovementState();
 
             ManageStaminaState();
         }
@@ -111,6 +112,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         Vector3 direction = new Vector3(horizontalInput, 0, verticalInput);
+        if (GameManager.Instance.isGameOver) { direction = Vector3.zero; }
         MoveTowards(direction);
     }
 
@@ -140,7 +142,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void ManagePlayerMovement()
+    void ManageMovementState()
     {
         switch (currentMovementState)
         {
@@ -267,7 +269,7 @@ public class PlayerController : MonoBehaviour
     {
         for (int i = 0; i < CalledOnceForMovementState.Length; i++)
         {
-            CalledOnceForMovementState[i] = false;
+            if (CalledOnceForMovementState[i]) { CalledOnceForMovementState[i] = false; }
         }
     }
 }
