@@ -4,31 +4,30 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("Instance")]
     public static GameManager Instance;
 
+    [Header("UI Elements")]
     [SerializeField] GameObject loadingScreen;
     [SerializeField] GameObject pauseScreen;
     [SerializeField] GameObject winScreen;
     [SerializeField] ParticleSystem[] winVFXs;
 
-    [SerializeField] DungeonGenerator dungeon;
-
+    [Header("Game States")]
     public bool hasBeatenGame;
-    public bool isGameOver;
+    public bool gameOver;
     public bool isPaused;
 
-    [SerializeField] GameObject playerPrefab;
+    [Header("Reference to Dungeon")]
+    [SerializeField] DungeonGenerator dungeon;
+
     GameObject player;
+    PlayerController playerController;
     Vector3 spawnPos;
     Quaternion spawnRot;
 
     private void Awake()
     {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
         Instance = this;
 
         pauseScreen.SetActive(false);
@@ -46,36 +45,61 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && !isPaused && dungeon.isFullyGenerated)
         {
-            UIAudio.Instance.PlayPauseAudio();
-            Time.timeScale = 0;
-            pauseScreen.SetActive(true);
-            isPaused = true;
+            PauseGame();
         }
         else if (pauseScreen.activeInHierarchy && !isPaused)
         {
-            Time.timeScale = 1;
-            pauseScreen.SetActive(false);
+            UnpauseGame();
         }
         else if (winScreen.activeInHierarchy == false && hasBeatenGame)
         {
-            Time.timeScale = 0;
-            foreach (var particle in winVFXs)
-            {
-                particle.Play();
-            }
-            winScreen.SetActive(true);
+            PlayWinSequence();
         }
-        else if (isGameOver)
+        else if (gameOver)
         {
-            if (!player.GetComponent<PlayerController>().playerAnim.GetCurrentAnimatorStateInfo(0).IsTag("Death")) { return; }
-            if (player.GetComponent<PlayerController>().playerAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) { return; }
-            player.GetComponent<PlayerController>().playerModel.gameObject.SetActive(false);
-            isGameOver = false;
-            player.transform.position = spawnPos;
-            player.transform.rotation = spawnRot;
-            player.GetComponent<PlayerController>().isDead = false;
-            player.GetComponent<PlayerController>().playerModel.gameObject.SetActive(true);
+            if (finishedDeathAnim()) { RespawnPlayer(); }
         }
+    }
+
+    void PauseGame()
+    {
+        UIAudio.Instance.PlayPauseAudio();
+        Time.timeScale = 0;
+        pauseScreen.SetActive(true);
+        isPaused = true;
+    }
+
+    void UnpauseGame() // theres a separate button that sets isPaused to false
+    {
+        Time.timeScale = 1;
+        pauseScreen.SetActive(false);
+    }
+
+    void PlayWinSequence()
+    {
+        Time.timeScale = 0;
+        foreach (var particle in winVFXs)
+        {
+            particle.Play();
+        }
+        winScreen.SetActive(true);
+    }
+
+    bool finishedDeathAnim()
+    {
+        if (!playerController.playerAnim.GetCurrentAnimatorStateInfo(0).IsTag("Death")) { return false; }
+        if (playerController.playerAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) { return false; }
+        return true;
+    }
+
+    void RespawnPlayer()
+    {
+        playerController.playerModel.gameObject.SetActive(false);
+        gameOver = false;
+        player.transform.position = spawnPos;
+        player.transform.rotation = spawnRot;
+        playerController.isDead = false;
+        playerController.playerModel.gameObject.SetActive(true);
     }
 
     IEnumerator WaitForDungeonGeneration()
@@ -85,8 +109,8 @@ public class GameManager : MonoBehaviour
         loadingScreen.SetActive(false);
 
         player = GameObject.Find("Player");
-        Transform playerTransform = player.gameObject.transform;
-        spawnPos = playerTransform.position;
-        spawnRot = playerTransform.rotation;
+        playerController = player.GetComponent<PlayerController>();
+        spawnPos = player.transform.position;
+        spawnRot = player.transform.rotation;
     }
 }

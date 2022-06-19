@@ -881,13 +881,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wall: {fileID: 2333512322588665559, guid: 196098d1f339a4a0b97a4595fc8f57c3, type: 3}
-  ValidPrefabs:
-  - {fileID: 7086873720238411825, guid: 7d98884177ce74fbb93d98dfad8ada51, type: 3}
-  - {fileID: 3382011252574872231, guid: 312ccf9c3e01b4a33b15df4e834742f9, type: 3}
-  - {fileID: 8096923438801218124, guid: d6ab339f94c614670beccf3a675b0317, type: 3}
-  - {fileID: 1213391223169826183, guid: 34bb1bbee38a34ec198b1b266653e6c2, type: 3}
-  - {fileID: 2548862733060590196, guid: 3f7bea2df94b24e81a497550b190d9ff, type: 3}
-  - {fileID: 8231541117247758183, guid: 6c66aa3090a25456490592022a78bff6, type: 3}
+  validConnectionTypes: 00000000020000000300000004000000
   isConnected: 0
   isAttemptValid: 1
 --- !u!1 &5708460328265741052
@@ -983,10 +977,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wall: {fileID: 2333512322588665559, guid: 196098d1f339a4a0b97a4595fc8f57c3, type: 3}
-  ValidPrefabs:
-  - {fileID: 8096923438801218124, guid: d6ab339f94c614670beccf3a675b0317, type: 3}
-  - {fileID: 1213391223169826183, guid: 34bb1bbee38a34ec198b1b266653e6c2, type: 3}
-  - {fileID: 2548862733060590196, guid: 3f7bea2df94b24e81a497550b190d9ff, type: 3}
+  validConnectionTypes: 010000000300000004000000
   isConnected: 0
   isAttemptValid: 1
 --- !u!1 &6430899966514298248
@@ -1065,10 +1056,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wall: {fileID: 2333512322588665559, guid: 196098d1f339a4a0b97a4595fc8f57c3, type: 3}
-  ValidPrefabs:
-  - {fileID: 8096923438801218124, guid: d6ab339f94c614670beccf3a675b0317, type: 3}
-  - {fileID: 1213391223169826183, guid: 34bb1bbee38a34ec198b1b266653e6c2, type: 3}
-  - {fileID: 2548862733060590196, guid: 3f7bea2df94b24e81a497550b190d9ff, type: 3}
+  validConnectionTypes: 010000000300000004000000
   isConnected: 0
   isAttemptValid: 1
 --- !u!1 &6671862404369936474
@@ -1276,13 +1264,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wall: {fileID: 2333512322588665559, guid: 196098d1f339a4a0b97a4595fc8f57c3, type: 3}
-  ValidPrefabs:
-  - {fileID: 7086873720238411825, guid: 7d98884177ce74fbb93d98dfad8ada51, type: 3}
-  - {fileID: 3382011252574872231, guid: 312ccf9c3e01b4a33b15df4e834742f9, type: 3}
-  - {fileID: 8096923438801218124, guid: d6ab339f94c614670beccf3a675b0317, type: 3}
-  - {fileID: 1213391223169826183, guid: 34bb1bbee38a34ec198b1b266653e6c2, type: 3}
-  - {fileID: 2548862733060590196, guid: 3f7bea2df94b24e81a497550b190d9ff, type: 3}
-  - {fileID: 8231541117247758183, guid: 6c66aa3090a25456490592022a78bff6, type: 3}
+  validConnectionTypes: 00000000020000000300000004000000
   isConnected: 0
   isAttemptValid: 1
 --- !u!1 &8827276812147332908

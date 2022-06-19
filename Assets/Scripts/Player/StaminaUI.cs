@@ -15,26 +15,33 @@ public class StaminaUI : MonoBehaviour
     [ColorUsage(true, true)]
     [SerializeField] Color recoveringColor;
 
-    private void Awake()
+    void Awake()
     {
         player = GetComponentInParent<PlayerController>();
         staminaBar = GetComponent<Image>();
         canvas = GetComponentInParent<Canvas>();
     }
 
-    private void Start()
+    void Start()
     {
         canvas.worldCamera = Camera.main;
     }
 
-    private void Update()
+    void Update()
     {
-        canvas.gameObject.transform.LookAt(canvas.gameObject.transform.position + Camera.main.gameObject.transform.forward, Camera.main.gameObject.transform.up);
-
+        if (canvas.gameObject.GetComponent<CanvasGroup>().alpha != 0)
+        {
+            FaceCamera(canvas);
+            StaminaFiller();
+        }
+        
         if (player.recovering && staminaBar.color != recoveringColor) { staminaBar.color = recoveringColor; }
         else if (!player.recovering && staminaBar.color != fillColor) { staminaBar.color = fillColor; }
+    }
 
-        if (canvas.gameObject.GetComponent<CanvasGroup>().alpha != 0) { StaminaFiller(); }
+    void FaceCamera(Canvas canvas)
+    {
+        canvas.gameObject.transform.LookAt(canvas.gameObject.transform.position + Camera.main.gameObject.transform.forward, Camera.main.gameObject.transform.up);
     }
 
     void StaminaFiller()

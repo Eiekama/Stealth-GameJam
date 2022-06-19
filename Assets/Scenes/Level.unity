@@ -2080,11 +2080,10 @@ MonoBehaviour:
   winVFXs:
   - {fileID: 588617826}
   - {fileID: 66787405}
-  dungeon: {fileID: 1996697706}
   hasBeatenGame: 0
-  isGameOver: 0
+  gameOver: 0
   isPaused: 0
-  playerPrefab: {fileID: 6147029882371582509, guid: ae76b261afe4a42ee84c4e42cbae53f7, type: 3}
+  dungeon: {fileID: 1996697706}
 --- !u!4 &1395117730
 Transform:
   m_ObjectHideFlags: 0
@@ -3259,9 +3258,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rootChamber: {fileID: 2832049167575478849, guid: 12a568fcdc0884279b6c36085fb5aabe, type: 3}
   endChamber: {fileID: 5888920074747497878, guid: fdd624202b6f143caa14511f293f6862, type: 3}
-  maxGenerationTime: 1
-  dungeonPrefabs: []
+  maxGenerationTime: 4
   isFullyGenerated: 0
+  Hallway:
+  - {fileID: 7086873720238411825, guid: 7d98884177ce74fbb93d98dfad8ada51, type: 3}
+  - {fileID: 3382011252574872231, guid: 312ccf9c3e01b4a33b15df4e834742f9, type: 3}
+  - {fileID: 4931636495657349104, guid: d72e1a2ce8c8a43638b6310416c1080e, type: 3}
+  Corner:
+  - {fileID: 2725155552612080867, guid: a955c4ea8602d41918c760ab4b074209, type: 3}
+  - {fileID: 1560902604782393389, guid: 4366e8ceaa7d741789572646e641de80, type: 3}
+  Room:
+  - {fileID: 8231541117247758183, guid: 6c66aa3090a25456490592022a78bff6, type: 3}
+  SmallChamber:
+  - {fileID: 2548862733060590196, guid: 3f7bea2df94b24e81a497550b190d9ff, type: 3}
+  MediumChamber:
+  - {fileID: 8096923438801218124, guid: d6ab339f94c614670beccf3a675b0317, type: 3}
+  - {fileID: 1213391223169826183, guid: 34bb1bbee38a34ec198b1b266653e6c2, type: 3}
 --- !u!4 &1996697707
 Transform:
   m_ObjectHideFlags: 0

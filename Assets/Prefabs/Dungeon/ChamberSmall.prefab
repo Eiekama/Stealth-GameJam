@@ -443,10 +443,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wall: {fileID: 2333512322588665559, guid: 196098d1f339a4a0b97a4595fc8f57c3, type: 3}
-  ValidPrefabs:
-  - {fileID: 7086873720238411825, guid: 7d98884177ce74fbb93d98dfad8ada51, type: 3}
-  - {fileID: 3382011252574872231, guid: 312ccf9c3e01b4a33b15df4e834742f9, type: 3}
-  - {fileID: 4931636495657349104, guid: d72e1a2ce8c8a43638b6310416c1080e, type: 3}
+  validConnectionTypes: 0000000004000000
   isConnected: 0
   isAttemptValid: 1
 --- !u!1 &3076503759364515981
@@ -537,10 +534,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wall: {fileID: 2333512322588665559, guid: 196098d1f339a4a0b97a4595fc8f57c3, type: 3}
-  ValidPrefabs:
-  - {fileID: 7086873720238411825, guid: 7d98884177ce74fbb93d98dfad8ada51, type: 3}
-  - {fileID: 3382011252574872231, guid: 312ccf9c3e01b4a33b15df4e834742f9, type: 3}
-  - {fileID: 4931636495657349104, guid: d72e1a2ce8c8a43638b6310416c1080e, type: 3}
+  validConnectionTypes: 0000000004000000
   isConnected: 0
   isAttemptValid: 1
 --- !u!1 &3684236090975562028

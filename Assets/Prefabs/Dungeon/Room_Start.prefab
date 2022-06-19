@@ -119,9 +119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wall: {fileID: 2333512322588665559, guid: 196098d1f339a4a0b97a4595fc8f57c3, type: 3}
-  ValidPrefabs:
-  - {fileID: 8096923438801218124, guid: d6ab339f94c614670beccf3a675b0317, type: 3}
-  - {fileID: 1213391223169826183, guid: 34bb1bbee38a34ec198b1b266653e6c2, type: 3}
+  validConnectionTypes: 000000000300000004000000
   isConnected: 0
   isAttemptValid: 1
 --- !u!1 &2315553931866814164

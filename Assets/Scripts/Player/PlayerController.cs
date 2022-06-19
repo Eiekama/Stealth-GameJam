@@ -91,7 +91,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (!GameManager.Instance.hasBeatenGame && !GameManager.Instance.isGameOver && !GameManager.Instance.isPaused)
+        if (!GameManager.Instance.hasBeatenGame && !GameManager.Instance.gameOver && !GameManager.Instance.isPaused)
         {
             horizontalInput = Input.GetAxis("Horizontal");
             verticalInput = Input.GetAxis("Vertical");
@@ -112,7 +112,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         Vector3 direction = new Vector3(horizontalInput, 0, verticalInput);
-        if (GameManager.Instance.isGameOver) { direction = Vector3.zero; }
+        if (GameManager.Instance.gameOver) { direction = Vector3.zero; }
         MoveTowards(direction);
     }
 
@@ -258,7 +258,7 @@ public class PlayerController : MonoBehaviour
 
     void ManageDeath()
     {
-        if (GameManager.Instance.isGameOver && !isDead)
+        if (GameManager.Instance.gameOver && !isDead)
         {
             isDead = true;
             playerAnim.SetTrigger("DeathForward_t");

@@ -8,11 +8,11 @@ public class DungeonChamber : MonoBehaviour
     public bool isFullyConnected;
     public DungeonChamber sourceChamber;
 
-    public Connector[] connectors { get; private set; }
+    public Connector[] Connectors { get; private set; }
 
     void Awake()
     {
-        connectors = GetComponentsInChildren<Connector>();
+        Connectors = GetComponentsInChildren<Connector>();
     }
 
     public IEnumerator SpawnRoomsProcess()
@@ -21,16 +21,16 @@ public class DungeonChamber : MonoBehaviour
         {
             while (!sourceChamber.isFullyConnected) { yield return null; }
 
-            if (connectors.Length == 1)
+            if (Connectors.Length == 1)
             {
                 isFullyConnected = true;
                 yield break;
             }
         }
 
-        for (int i = 0; i < connectors.Length; i++)
+        for (int i = 0; i < Connectors.Length; i++)
         {
-            yield return StartCoroutine(connectors[i].SpawnAdjacentRoomProcess());
+            yield return StartCoroutine(Connectors[i].SpawnAdjacentRoomProcess());
         }
         isFullyConnected = true;
     }

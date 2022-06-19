@@ -319,9 +319,9 @@ public class EnemyAI : MonoBehaviour
 
         agent.SetDestination(playerPos);
 
-        if (agent.remainingDistance < agent.stoppingDistance && !GameManager.Instance.isGameOver)
+        if (agent.remainingDistance < agent.stoppingDistance && !GameManager.Instance.gameOver)
         {
-            GameManager.Instance.isGameOver = true;
+            GameManager.Instance.gameOver = true;
             agent.isStopped = true;
             enemyAnim.SetTrigger("Attack_t");
         }
@@ -370,7 +370,7 @@ public class EnemyAI : MonoBehaviour
 
     void React()
     {
-        if (!isReacting && !GameManager.Instance.isGameOver)
+        if (!isReacting && !GameManager.Instance.gameOver)
         {
             enemyUIAnim.SetBool("Qn_b", true);
             enemyAudio.ReactAudio();

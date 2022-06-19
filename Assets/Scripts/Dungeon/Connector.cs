@@ -1,12 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Connector : MonoBehaviour
 {
     [SerializeField] GameObject wall;
 
-    [SerializeField] List<GameObject> ValidPrefabs; //could be array of enums?
+    public enum ValidConnectionTypes
+    {
+        Hallway,
+        Corner,
+        Room,
+        SmallChamber,
+        MediumChamber
+    }
+    [SerializeField] ValidConnectionTypes[] validConnectionTypes;
+
+    //[SerializeField] List<GameObject> ValidPrefabs; //could be array of enums?
     List<GameObject> validPrefabs = new List<GameObject>();
 
     public bool isConnected;
@@ -14,7 +25,7 @@ public class Connector : MonoBehaviour
 
     void Awake()
     {
-        validPrefabs = ValidPrefabs;
+        validPrefabs = GetValidPrefabs();
 
         isConnected = false;
     }
@@ -68,6 +79,43 @@ public class Connector : MonoBehaviour
             }
             yield return null;
         }
+    }
+
+    List<GameObject> GetValidPrefabs()
+    {
+        List<GameObject> list = new List<GameObject>();
+        GameObject[] validTypes = new GameObject[0];
+        foreach (var type in validConnectionTypes)
+        {
+            switch (type)
+            {
+                case ValidConnectionTypes.Hallway:
+                    validTypes = validTypes.Concat(DungeonGenerator.Instance.Hallway).ToArray();
+                    break;
+
+                case ValidConnectionTypes.Corner:
+                    validTypes = validTypes.Concat(DungeonGenerator.Instance.Corner).ToArray();
+                    break;
+
+                case ValidConnectionTypes.Room:
+                    validTypes = validTypes.Concat(DungeonGenerator.Instance.Room).ToArray();
+                    break;
+
+                case ValidConnectionTypes.SmallChamber:
+                    validTypes = validTypes.Concat(DungeonGenerator.Instance.SmallChamber).ToArray();
+                    break;
+
+                case ValidConnectionTypes.MediumChamber:
+                    validTypes = validTypes.Concat(DungeonGenerator.Instance.MediumChamber).ToArray();
+                    break;
+            }
+        }
+
+        foreach (var prefab in validTypes)
+        {
+            list.Add(prefab);
+        }
+        return list;
     }
 
     GameObject ChooseRandomPrefab(List<GameObject> list)
