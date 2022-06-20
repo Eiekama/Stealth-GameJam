@@ -3079,6 +3079,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rootChamber: {fileID: 2832049167575478849, guid: 12a568fcdc0884279b6c36085fb5aabe, type: 3}
   endChamber: {fileID: 5888920074747497878, guid: fdd624202b6f143caa14511f293f6862, type: 3}
+  heartChamber: {fileID: 2954669161918018948, guid: be56b06e0bc294e00a5befaf0e74164f, type: 3}
   maxGenerationTime: 10
   isFullyGenerated: 0
   Hallway:

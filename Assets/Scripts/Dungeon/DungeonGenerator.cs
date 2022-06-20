@@ -11,6 +11,7 @@ public class DungeonGenerator : MonoBehaviour
 
     [SerializeField] GameObject rootChamber;
     [SerializeField] GameObject endChamber;
+    [SerializeField] GameObject heartChamber;
     [SerializeField] int maxGenerationTime;
     public bool isFullyGenerated = false;
 
@@ -82,20 +83,18 @@ public class DungeonGenerator : MonoBehaviour
 
 
         incompleteChambers = GetIncompleteChambers();
+
         while (!endChamberSpawned)
         {
             DungeonChamber chosenChamber = ChooseRandomChamber(incompleteChambers);
-            yield return StartCoroutine(SpawnEndRoom(chosenChamber));
+            yield return StartCoroutine(SpawnRoomAtEnd(endChamber, chosenChamber));
+            if (endChamberSpawned) { incompleteChambers.Remove(chosenChamber); }
         }
-
+        
         foreach (var chamber in incompleteChambers)
         {
-            foreach (var connector in chamber.Connectors)
-            {
-                if (!connector.isConnected) { connector.SpawnWall(); }
-                yield return null;
-            }
-            yield return null;
+            endChamberSpawned = false;
+            yield return StartCoroutine(SpawnRoomAtEnd(heartChamber, chamber));
         }
 
         isFullyGenerated = true;
@@ -119,7 +118,7 @@ public class DungeonGenerator : MonoBehaviour
         return components[Random.Range(0, components.Count)];
     }
 
-    IEnumerator SpawnEndRoom(DungeonChamber chamber)
+    IEnumerator SpawnRoomAtEnd(GameObject roomToSpawn, DungeonChamber chamber)
     {
         List<Connector> openConnectors = new List<Connector>();
         foreach (var connector in chamber.Connectors)
@@ -129,13 +128,20 @@ public class DungeonGenerator : MonoBehaviour
 
         while (!endChamberSpawned)
         {
-            if (openConnectors.Count == 0) { yield break; }
+            if (openConnectors.Count == 0) //room couldn't fit anywhere
+            {
+                foreach (var connector in chamber.Connectors)
+                {
+                    if (!connector.isConnected) { connector.SpawnWall(); }
+                }
+                yield break;
+            }
 
             Connector chosenConnecter = openConnectors[Random.Range(0, openConnectors.Count)];
 
-            GameObject spawnedEndChamber = chosenConnecter.SpawnAdjacentRoom(endChamber, endChamber.GetComponentInChildren<Connector>().gameObject.transform);
+            GameObject spawnedEndChamber = chosenConnecter.SpawnAdjacentRoom(roomToSpawn, roomToSpawn.GetComponentInChildren<Connector>().gameObject.transform);
             
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.1f);
 
             if (chosenConnecter.isAttemptValid)
             {
@@ -144,6 +150,11 @@ public class DungeonGenerator : MonoBehaviour
                 chosenConnecter.isConnected = true;
 
                 endChamberSpawned = true;
+
+                foreach (var connector in chamber.Connectors)
+                {
+                    if (!connector.isConnected) { connector.SpawnWall(); }
+                }
                 yield break;
             }
             else
