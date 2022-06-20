@@ -42,6 +42,8 @@ public class EnemyAI : MonoBehaviour
     bool[] CalledOnceForState = new bool[Enum.GetNames(typeof(State)).Length];
     public UnityEvent OnChangeState = new UnityEvent();
 
+    bool isAttacking;
+
 
     [Header("Patrol Path Waypoint")]
     [SerializeField] Waypoint currentWaypoint;
@@ -319,11 +321,14 @@ public class EnemyAI : MonoBehaviour
 
         agent.SetDestination(playerPos);
 
-        if (agent.remainingDistance < agent.stoppingDistance && !GameManager.Instance.gameOver)
+        if (agent.remainingDistance < agent.stoppingDistance && !isAttacking)
         {
-            GameManager.Instance.gameOver = true;
             agent.isStopped = true;
             enemyAnim.SetTrigger("Attack_t");
+            isAttacking = true;
+            PlayerController.Instance.isAttacked = true;
+
+            OnChangeState.RemoveListener(React);
         }
     }
 
@@ -331,9 +336,9 @@ public class EnemyAI : MonoBehaviour
     {
         if (!CalledOnceForState[(int)State.Search])
         {
-            OnChangeState.RemoveListener(React);
+            if (isAttacking) { isAttacking = false; agent.isStopped = false; }
 
-            agent.isStopped = false;
+            OnChangeState.RemoveListener(React);
 
             agent.stoppingDistance = UnityEngine.Random.Range(0.5f, 1.5f);
             enemyAnim.SetFloat("Speed_f", 0);

@@ -6,8 +6,11 @@ using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController Instance;
+
     [Header("Player Components")]
     public Transform playerModel;
+    [SerializeField] Collider playerHead;
     public Animator playerAnim;
     [SerializeField] Transform cameraRoot;
     [SerializeField] Animator staminaAnim;
@@ -20,6 +23,8 @@ public class PlayerController : MonoBehaviour
 
     float currentSpeed;
 
+    [Header("Health")]
+    public int hp = 1;
 
     [Header("Stamina")]
     [SerializeField] float runningLoseRate;
@@ -45,6 +50,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] GameObject runningNoise;
 
     [Header("Player States")]
+    public bool isAttacked;
     public bool isDead;
     public bool recovering;
     public bool staminaFull;
@@ -70,9 +76,14 @@ public class PlayerController : MonoBehaviour
     float horizontalInput;
     float verticalInput;
 
+    Vector3 spawnPos;
+    Quaternion spawnRot;
+
 
     void Awake()
     {
+        Instance = this;
+
         playerRb = GetComponent<Rigidbody>();
 
         stamina = MaxStamina;
@@ -87,11 +98,16 @@ public class PlayerController : MonoBehaviour
         UIAudio.Instance.player = gameObject;
 
         OnChangedMovementState.AddListener(ResetCalledOnceBooleans);
+
+        spawnPos = transform.position;
+        spawnRot = transform.rotation;
     }
 
     void Update()
     {
-        if (!GameManager.Instance.hasBeatenGame && !GameManager.Instance.gameOver && !GameManager.Instance.isPaused)
+        if (GameManager.Instance.hasBeatenGame || GameManager.Instance.gameOver || GameManager.Instance.isPaused) { return; }
+
+        if (!isDead)
         {
             horizontalInput = Input.GetAxis("Horizontal");
             verticalInput = Input.GetAxis("Vertical");
@@ -100,19 +116,19 @@ public class PlayerController : MonoBehaviour
             currentMovementState = GetCurrentMovementState();
 
             if (previousMovementState != currentMovementState) { OnChangedMovementState.Invoke(); }
-
-            ManageMovementState();
-
-            ManageStaminaState();
         }
 
-        ManageDeath();
+        ManageMovementState();
+
+        ManageStaminaState();
+
+        ManageHealth();
     }
 
     void FixedUpdate()
     {
         Vector3 direction = new Vector3(horizontalInput, 0, verticalInput);
-        if (GameManager.Instance.gameOver) { direction = Vector3.zero; }
+        if (isDead) { direction = Vector3.zero; }
         MoveTowards(direction);
     }
 
@@ -172,7 +188,7 @@ public class PlayerController : MonoBehaviour
                     currentSpeed = walkingSpeed;
                     playerAnim.SetFloat("Speed_f", walkingSpeed);
 
-                    walkingNoise.SetActive(true);
+                    if (!playerAnim.GetBool("IsInvulnerable_b")) { walkingNoise.SetActive(true); }
                     runningNoise.SetActive(false);
 
                     CalledOnceForMovementState[(int)MovementState.Walking] = true;
@@ -191,7 +207,7 @@ public class PlayerController : MonoBehaviour
                     playerAnim.SetFloat("Speed_f", runningSpeed);
 
                     walkingNoise.SetActive(false);
-                    runningNoise.SetActive(true);
+                    if (!playerAnim.GetBool("IsInvulnerable_b")) { runningNoise.SetActive(true); }
 
                     CalledOnceForMovementState[(int)MovementState.Running] = true;
                 }
@@ -256,13 +272,60 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void ManageDeath()
+    void ManageHealth()
     {
-        if (GameManager.Instance.gameOver && !isDead)
+        if (isAttacked)
         {
-            isDead = true;
-            playerAnim.SetTrigger("DeathForward_t");
+            hp -= 1;
+            isAttacked = false;
+
+            if (hp == 0)
+            {
+                isDead = true;
+                StartCoroutine(PlayDeathSequence());
+            }
+            else
+            {
+                StartCoroutine(IFrames(3f));
+            }
         }
+    }
+
+    IEnumerator IFrames(float seconds)
+    {
+        playerHead.enabled = false;
+        playerAnim.SetBool("IsInvulnerable_b", true);
+        yield return new WaitForSeconds(seconds);
+        playerAnim.SetBool("IsInvulnerable_b", false);
+        playerHead.enabled = true;
+    }
+
+    IEnumerator PlayDeathSequence()
+    {
+        playerHead.enabled = false;
+        playerAnim.SetTrigger("DeathForward_t");
+        while (!FinishedDeathAnim()) { yield return null; }
+        GameManager.Instance.gameOver = true;
+        RespawnPlayer();
+    }
+
+    bool FinishedDeathAnim()
+    {
+        if (!playerAnim.GetCurrentAnimatorStateInfo(0).IsTag("Death")) { return false; }
+        if (playerAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) { return false; }
+        return true;
+    }
+
+    void RespawnPlayer()
+    {
+        playerModel.gameObject.SetActive(false);
+        GameManager.Instance.gameOver = false;
+        transform.position = spawnPos;
+        transform.rotation = spawnRot;
+        isDead = false;
+        hp = 1;
+        playerHead.enabled = true;
+        playerModel.gameObject.SetActive(true);
     }
 
     void ResetCalledOnceBooleans()

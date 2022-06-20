@@ -26,7 +26,6 @@ public class Connector : MonoBehaviour
     void Awake()
     {
         validPrefabs = GetValidPrefabs();
-
         isConnected = false;
     }
 
@@ -37,13 +36,13 @@ public class Connector : MonoBehaviour
 
         while (!isConnected)
         {
+            isAttemptValid = true;
             chosenPrefab = ChooseRandomPrefab(validPrefabs);
 
             //spawn
             if (chosenPrefab == null)
             {
                 SpawnWall();
-                isAttemptValid = true;
             } else
             {
                 Connector[] validConnectors = chosenPrefab.GetComponentsInChildren<Connector>();
@@ -53,16 +52,11 @@ public class Connector : MonoBehaviour
                 clonedPrefab = SpawnAdjacentRoom(chosenPrefab, chosenConnector.gameObject.transform);
 
                 // script communication
-                Validator[] chosenValidators = clonedPrefab.GetComponentsInChildren<Validator>();
-                for (int i = 0; i < chosenValidators.Length; i++)
-                {
-                    chosenValidators[i].sourceConnector = this;
-                }
                 Connector[] clonedConnectors = clonedPrefab.GetComponentsInChildren<Connector>();
                 clonedConnectors[chosenIndex].isConnected = true;
             }
 
-            yield return new WaitForSeconds(.2f);
+            yield return new WaitForSeconds(.1f);
 
             //validation
             if (!isAttemptValid)
@@ -148,6 +142,13 @@ public class Connector : MonoBehaviour
         // spawn prefab
         GameObject spawnedPrefab = Instantiate(prefab, spawnPos, spawnRot);
         spawnedPrefab.transform.SetParent(transform.root, true);
+
+        // script communication
+        Validator[] chosenValidators = spawnedPrefab.GetComponentsInChildren<Validator>();
+        foreach (var validator in chosenValidators)
+        {
+            validator.sourceConnector = this;
+        }
 
         return spawnedPrefab;
     }

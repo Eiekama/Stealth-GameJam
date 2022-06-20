@@ -5,13 +5,8 @@ using UnityEngine;
 public class Validator : MonoBehaviour
 {
     public Connector sourceConnector;
-    DungeonChamber chamber;
+    [SerializeField] DungeonChamber chamber;
     DungeonGenerator generator;
-
-    void Awake()
-    {
-        chamber = GetComponentInParent<DungeonChamber>();
-    }
 
     private void Start()
     {
@@ -20,7 +15,7 @@ public class Validator : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        //Debug.Log("OnTriggerEnter called");
+        if (other.gameObject.GetComponent<Validator>() == null) { return; }
         if (generator != null && !generator.isFullyGenerated)
         {
             if (sourceConnector == null) { return; }

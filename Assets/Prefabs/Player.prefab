@@ -411,6 +411,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerModel: {fileID: 8759976637805577333}
+  playerHead: {fileID: 1890348169835457640}
   playerAnim: {fileID: 2367509279743023518}
   cameraRoot: {fileID: 6147029884091293815}
   staminaAnim: {fileID: 5981658948740515395}
@@ -418,12 +419,13 @@ MonoBehaviour:
   walkingSpeed: 1.5
   runningSpeed: 3.5
   rotationSpeed: 360
+  hp: 1
   runningLoseRate: 3
   idleRecoveryRate: 2
   walkingRecoveryRate: 1
   walkingNoise: {fileID: 874466470}
   runningNoise: {fileID: 453338099686064770}
-  isDead: 0
+  isAttacked: 0
   recovering: 0
   staminaFull: 1
 --- !u!54 &912312768499724264

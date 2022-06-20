@@ -809,6 +809,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sourceConnector: {fileID: 0}
+  chamber: {fileID: 8254008539990315614}
 --- !u!1001 &298134833316162740
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -827,6 +827,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sourceConnector: {fileID: 0}
+  chamber: {fileID: 8822679060765602382}
 --- !u!1 &4329775637797676627
 GameObject:
   m_ObjectHideFlags: 0
@@ -6500,7 +6501,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wall: {fileID: 2333512322588665559, guid: 196098d1f339a4a0b97a4595fc8f57c3, type: 3}
-  ValidPrefabs: []
+  validConnectionTypes: 
   isConnected: 0
   isAttemptValid: 1
 --- !u!1 &9104226429125715736

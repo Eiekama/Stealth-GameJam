@@ -489,6 +489,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sourceConnector: {fileID: 0}
+  chamber: {fileID: 3777369705730370359}
 --- !u!1 &6022156477988291937
 GameObject:
   m_ObjectHideFlags: 0

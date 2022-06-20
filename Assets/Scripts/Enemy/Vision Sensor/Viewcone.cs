@@ -32,7 +32,12 @@ public class Viewcone : MonoBehaviour
         meshCollider.sharedMesh = viewcone;
     }
 
-    private void OnTriggerStay(Collider other)
+    void OnTriggerEnter(Collider other)
+    {
+        ReliableOnTriggerExit.NotifyTriggerEnter(other, gameObject, OnTriggerExit);
+    }
+
+    void OnTriggerStay(Collider other)
     {
         if (other.CompareTag("Player")) //vision sensor
         {
@@ -45,6 +50,8 @@ public class Viewcone : MonoBehaviour
 
     void OnTriggerExit(Collider other)
     {
+        ReliableOnTriggerExit.NotifyTriggerExit(other, gameObject);
+
         if (other.CompareTag("Player"))
         {
             OnLosePlayer(other.gameObject.transform);

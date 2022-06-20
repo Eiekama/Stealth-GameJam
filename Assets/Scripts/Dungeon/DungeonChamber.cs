@@ -14,24 +14,4 @@ public class DungeonChamber : MonoBehaviour
     {
         Connectors = GetComponentsInChildren<Connector>();
     }
-
-    public IEnumerator SpawnRoomsProcess()
-    {
-        if (sourceChamber != null)
-        {
-            while (!sourceChamber.isFullyConnected) { yield return null; }
-
-            if (Connectors.Length == 1)
-            {
-                isFullyConnected = true;
-                yield break;
-            }
-        }
-
-        for (int i = 0; i < Connectors.Length; i++)
-        {
-            yield return StartCoroutine(Connectors[i].SpawnAdjacentRoomProcess());
-        }
-        isFullyConnected = true;
-    }
 }
