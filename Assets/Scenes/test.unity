@@ -223,7 +223,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1760040950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236,24 +236,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0a184ce34a4e4f8790c8c97fc12357e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rootChamber: {fileID: 4931636495657349104, guid: d72e1a2ce8c8a43638b6310416c1080e, type: 3}
+  rootChamber: {fileID: 8096923438801218124, guid: d6ab339f94c614670beccf3a675b0317, type: 3}
   endChamber: {fileID: 5888920074747497878, guid: fdd624202b6f143caa14511f293f6862, type: 3}
-  maxGenerationTime: 7
+  heartChamber: {fileID: 2954669161918018948, guid: be56b06e0bc294e00a5befaf0e74164f, type: 3}
+  maxGenerationTime: 4
   isFullyGenerated: 0
   Hallway:
-  - {fileID: 7086873720238411825, guid: 7d98884177ce74fbb93d98dfad8ada51, type: 3}
   - {fileID: 3382011252574872231, guid: 312ccf9c3e01b4a33b15df4e834742f9, type: 3}
-  - {fileID: 4931636495657349104, guid: d72e1a2ce8c8a43638b6310416c1080e, type: 3}
-  Corner:
-  - {fileID: 2725155552612080867, guid: a955c4ea8602d41918c760ab4b074209, type: 3}
-  - {fileID: 1560902604782393389, guid: 4366e8ceaa7d741789572646e641de80, type: 3}
-  Room:
-  - {fileID: 8231541117247758183, guid: 6c66aa3090a25456490592022a78bff6, type: 3}
-  SmallChamber:
-  - {fileID: 2548862733060590196, guid: 3f7bea2df94b24e81a497550b190d9ff, type: 3}
-  MediumChamber:
-  - {fileID: 8096923438801218124, guid: d6ab339f94c614670beccf3a675b0317, type: 3}
-  - {fileID: 1213391223169826183, guid: 34bb1bbee38a34ec198b1b266653e6c2, type: 3}
+  Corner: []
+  Room: []
+  SmallChamber: []
+  MediumChamber: []
   time: 0
 --- !u!114 &1760040951
 MonoBehaviour:

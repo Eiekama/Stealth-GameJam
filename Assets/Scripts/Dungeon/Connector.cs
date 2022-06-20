@@ -129,9 +129,7 @@ public class Connector : MonoBehaviour
     public GameObject SpawnAdjacentRoom(GameObject prefab, Transform connector)
     {
         //calculate required rotation and position
-        float yRot = Quaternion.Angle(transform.rotation, connector.rotation);
-        if (yRot == 180) { yRot = 0; }
-        else if (yRot == 0) { yRot = 180; }
+        float yRot = 180 - Quaternion.Angle(transform.rotation, connector.rotation);
             //check if clockwise or counterclockwise
         Vector3 up = Vector3.Cross(transform.forward, connector.forward);
         yRot = up.y < 0 ? -yRot : +yRot;
