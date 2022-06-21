@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Heart : MonoBehaviour
+public class HeartPickup : MonoBehaviour
 {
     [SerializeField] ParticleSystem[] burst;
 
@@ -10,7 +10,9 @@ public class Heart : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            other.gameObject.GetComponentInParent<PlayerController>().hp++;
+            PlayerController player = other.gameObject.GetComponentInParent<PlayerController>();
+            player.hp++;
+            player.OnHealthIncrease.Invoke();
             foreach (var particle in burst)
             {
                 particle.Play();

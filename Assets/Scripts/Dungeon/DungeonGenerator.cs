@@ -132,7 +132,7 @@ public class DungeonGenerator : MonoBehaviour
             {
                 foreach (var connector in chamber.Connectors)
                 {
-                    if (!connector.isConnected) { connector.SpawnWall(); }
+                    if (!connector.isConnected) { connector.SpawnWall(); connector.isConnected = true; }
                 }
                 yield break;
             }
@@ -153,7 +153,7 @@ public class DungeonGenerator : MonoBehaviour
 
                 foreach (var connector in chamber.Connectors)
                 {
-                    if (!connector.isConnected) { connector.SpawnWall(); }
+                    if (!connector.isConnected) { connector.SpawnWall(); connector.isConnected = true; }
                 }
                 yield break;
             }

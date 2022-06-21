@@ -4,15 +4,46 @@ using UnityEngine;
 
 public class HealthUI : MonoBehaviour
 {
-    // Start is called before the first frame update
+    [SerializeField] PlayerController player;
+
+    [NonReorderable]
+    [SerializeField] GameObject[] hearts;
+
     void Start()
     {
-        
+        player.OnHealthIncrease.AddListener(AddHearts);
+        player.OnHealthDecrease.AddListener(DecreaseHearts);
+
+        StartCoroutine(WaitForDungeonGeneration());
     }
 
-    // Update is called once per frame
-    void Update()
+    void AddHearts()
     {
-        
+        if (player.hp > hearts.Length) { return; }
+
+        for (int i = 0; i < player.hp; i++)
+        {
+            if (!hearts[i].activeInHierarchy) { hearts[i].SetActive(true); }
+        }
+    }
+
+    void DecreaseHearts()
+    {
+        if (player.hp >= hearts.Length) { return; }
+
+        for (int i = player.hp; i < hearts.Length; i++)
+        {
+            if (hearts[i].activeInHierarchy)
+            { hearts[i].GetComponent<HeartContainer>().OnDisappear.Invoke(); }
+        }
+    }
+
+    IEnumerator WaitForDungeonGeneration()
+    {
+        while (!DungeonGenerator.Instance.isFullyGenerated) { yield return null; }
+        for (int i = 0; i < player.hp; i++)
+        {
+            if (!hearts[i].activeInHierarchy) { hearts[i].SetActive(true); }
+        }
     }
 }

@@ -18,9 +18,6 @@ public class GameManager : MonoBehaviour
     public bool gameOver;
     public bool isPaused;
 
-    [Header("Reference to Dungeon")]
-    [SerializeField] DungeonGenerator dungeon;
-
 
     private void Awake()
     {
@@ -39,7 +36,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !isPaused && dungeon.isFullyGenerated)
+        if (Input.GetKeyDown(KeyCode.Space) && !isPaused && DungeonGenerator.Instance.isFullyGenerated)
         {
             PauseGame();
         }
@@ -85,7 +82,7 @@ public class GameManager : MonoBehaviour
     IEnumerator WaitForDungeonGeneration()
     {
         loadingScreen.SetActive(true);
-        while (!dungeon.isFullyGenerated) { yield return null; }
+        while (!DungeonGenerator.Instance.isFullyGenerated) { yield return null; }
         loadingScreen.SetActive(false);
     }
 }

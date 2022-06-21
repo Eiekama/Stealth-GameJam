@@ -25,6 +25,8 @@ public class PlayerController : MonoBehaviour
 
     [Header("Health")]
     public int hp = 1;
+    public UnityEvent OnHealthIncrease = new UnityEvent();
+    public UnityEvent OnHealthDecrease = new UnityEvent();
 
     [Header("Stamina")]
     [SerializeField] float runningLoseRate;
@@ -277,6 +279,7 @@ public class PlayerController : MonoBehaviour
         if (isAttacked)
         {
             hp -= 1;
+            OnHealthDecrease.Invoke();
             isAttacked = false;
 
             if (hp == 0)
@@ -324,6 +327,7 @@ public class PlayerController : MonoBehaviour
         transform.rotation = spawnRot;
         isDead = false;
         hp = 1;
+        OnHealthIncrease.Invoke();
         playerHead.enabled = true;
         playerModel.gameObject.SetActive(true);
     }
