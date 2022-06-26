@@ -10,13 +10,15 @@ public class HeartPickup : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            PlayerController player = other.gameObject.GetComponentInParent<PlayerController>();
-            player.hp++;
-            player.OnHealthIncrease.Invoke();
+            DataManager.Instance.playerHp++;
+            other.gameObject.GetComponentInParent<PlayerController>().OnHealthIncrease.Invoke();
             foreach (var particle in burst)
             {
                 particle.Play();
             }
+
+            UIAudio.Instance.PlayPickupAudio();
+
             gameObject.SetActive(false);
         }
     }

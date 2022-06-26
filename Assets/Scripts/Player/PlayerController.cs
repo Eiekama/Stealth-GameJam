@@ -21,10 +21,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float runningSpeed;
     [SerializeField] float rotationSpeed;
 
-    float currentSpeed;
+    [SerializeField] float currentSpeed;
 
     [Header("Health")]
-    public int hp = 1;
+    //public int hp = 1;
     public UnityEvent OnHealthIncrease = new UnityEvent();
     public UnityEvent OnHealthDecrease = new UnityEvent();
 
@@ -78,9 +78,6 @@ public class PlayerController : MonoBehaviour
     float horizontalInput;
     float verticalInput;
 
-    Vector3 spawnPos;
-    Quaternion spawnRot;
-
 
     void Awake()
     {
@@ -100,9 +97,6 @@ public class PlayerController : MonoBehaviour
         UIAudio.Instance.player = gameObject;
 
         OnChangedMovementState.AddListener(ResetCalledOnceBooleans);
-
-        spawnPos = transform.position;
-        spawnRot = transform.rotation;
     }
 
     void Update()
@@ -156,7 +150,11 @@ public class PlayerController : MonoBehaviour
         else // player is moving
         {
             if (recovering || !Input.GetKey(KeyCode.X)) { return isCrouching? MovementState.Crouch_Walking: MovementState.Walking; }
-            else { return MovementState.Running; }
+            else
+            {
+                if (isCrouching) { isCrouching = false; };
+                return MovementState.Running;
+            }
         }
     }
 
@@ -241,7 +239,7 @@ public class PlayerController : MonoBehaviour
                 {
                     playerAnim.SetBool("IsCrouching_b", true);
 
-                    currentSpeed = walkingSpeed;
+                    currentSpeed = crouchingSpeed;
                     playerAnim.SetFloat("Speed_f", walkingSpeed);
 
                     walkingNoise.SetActive(false);
@@ -278,11 +276,11 @@ public class PlayerController : MonoBehaviour
     {
         if (isAttacked)
         {
-            hp -= 1;
+            DataManager.Instance.playerHp -= 1;
             OnHealthDecrease.Invoke();
             isAttacked = false;
 
-            if (hp == 0)
+            if (DataManager.Instance.playerHp == 0)
             {
                 isDead = true;
                 StartCoroutine(PlayDeathSequence());
@@ -309,7 +307,7 @@ public class PlayerController : MonoBehaviour
         playerAnim.SetTrigger("DeathForward_t");
         while (!FinishedDeathAnim()) { yield return null; }
         GameManager.Instance.gameOver = true;
-        RespawnPlayer();
+        GameManager.Instance.OnGameover.Invoke();
     }
 
     bool FinishedDeathAnim()
@@ -317,19 +315,6 @@ public class PlayerController : MonoBehaviour
         if (!playerAnim.GetCurrentAnimatorStateInfo(0).IsTag("Death")) { return false; }
         if (playerAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) { return false; }
         return true;
-    }
-
-    void RespawnPlayer()
-    {
-        playerModel.gameObject.SetActive(false);
-        GameManager.Instance.gameOver = false;
-        transform.position = spawnPos;
-        transform.rotation = spawnRot;
-        isDead = false;
-        hp = 1;
-        OnHealthIncrease.Invoke();
-        playerHead.enabled = true;
-        playerModel.gameObject.SetActive(true);
     }
 
     void ResetCalledOnceBooleans()

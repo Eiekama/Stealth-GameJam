@@ -8,8 +8,8 @@ public class WinTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            //trigger confetti
             GameManager.Instance.hasBeatenGame = true;
+            GameManager.Instance.OnWin.Invoke();
         }
     }
 }

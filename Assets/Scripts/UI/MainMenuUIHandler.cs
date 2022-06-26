@@ -10,11 +10,13 @@ public class MainMenuUIHandler : MonoBehaviour
 {
     public void StartGame()
     {
+        UIAudio.Instance.StartFade(UIAudio.Instance.bgmSource, 3f, 0f);
         SceneManager.LoadScene(1);
     }
 
     public void GoToCredits()
     {
+        UIAudio.Instance.StartFade(UIAudio.Instance.bgmSource, .5f, .5f * UIAudio.Instance.bgmDefaultVolume);
         SceneManager.LoadScene(2);
     }
 

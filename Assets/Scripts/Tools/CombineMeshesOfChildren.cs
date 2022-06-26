@@ -18,7 +18,7 @@ public class CombineMeshesOfChildren : MonoBehaviour
         {
             combine[i - 1].mesh = meshFilters[i].sharedMesh;
             combine[i - 1].transform = parentWorldToLocalMatrix * meshFilters[i].transform.localToWorldMatrix;
-            meshFilters[i].gameObject.SetActive(false);
+            meshFilters[i].gameObject.GetComponent<MeshRenderer>().enabled = false;
 
             i++;
         }

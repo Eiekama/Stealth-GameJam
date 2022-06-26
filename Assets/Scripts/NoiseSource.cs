@@ -7,7 +7,7 @@ using UnityEngine;
 public class NoiseSource : MonoBehaviour
 {
     public float soundRange;
-    public float sourceIntensity { get; private set; }
+    public float SourceIntensity { get; private set; }
 
     MeshFilter meshFilter;
     MeshCollider meshCollider;
@@ -21,7 +21,7 @@ public class NoiseSource : MonoBehaviour
         meshFilter = GetComponent<MeshFilter>();
         meshCollider = GetComponent<MeshCollider>();
 
-        sourceIntensity = soundRange * soundRange;
+        SourceIntensity = soundRange * soundRange;
 
         soundcone = CreateMesh.Cone(soundRange, 360f, triangleCount);
 

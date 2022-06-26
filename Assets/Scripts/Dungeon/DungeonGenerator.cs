@@ -35,6 +35,7 @@ public class DungeonGenerator : MonoBehaviour
     {
         Instance = this;
 
+        maxGenerationTime = DataManager.Instance.maxGenerationTime;
         time = maxGenerationTime;
         surface = GetComponent<NavMeshSurface>();
     }

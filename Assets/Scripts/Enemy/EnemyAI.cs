@@ -21,6 +21,8 @@ public class EnemyAI : MonoBehaviour
     public float viewconeAngle;
     public float peripheralRange;
     public float peripheralAngle;
+    public float secondaryPeripheralRange;
+    public float secondaryPeripheralAngle;
     public float sixthSenseRange;
     public float sixthSenseAngle;
     public float hearingThreshold;
@@ -118,14 +120,11 @@ public class EnemyAI : MonoBehaviour
     {
         if (other.CompareTag("Noise")) //audio sensor
         {
-            if (currentState != State.Chase && currentState != State.CheckSound)
-            {
-                float intensity = CalculateSoundIntensity(other.gameObject);
+            float intensity = CalculateSoundIntensity(other.gameObject);
 
-                if (intensity > hearingThreshold)
-                {
-                    currentState = TryGetNewState(State.CheckSound);
-                }
+            if (intensity > hearingThreshold)
+            {
+                currentState = TryGetNewState(State.CheckSound);
             }
         }
     }
@@ -144,7 +143,7 @@ public class EnemyAI : MonoBehaviour
 
         if (source.GetComponent<NoiseSource>() == null) { Debug.LogError(source.name + " does not have NoiseSource script."); }
 
-        return source.GetComponent<NoiseSource>().sourceIntensity / (distance * distance);
+        return source.GetComponent<NoiseSource>().SourceIntensity / (distance * distance);
     }
 
     void FaceCamera(Canvas canvas)
@@ -240,6 +239,8 @@ public class EnemyAI : MonoBehaviour
     {
         if (!CalledOnceForState[(int)State.Idle])
         {
+            agent.isStopped = false;
+
             enemyUIAnim.SetBool("Qn_b", false);
 
             OnChangeState.AddListener(React);
@@ -336,11 +337,14 @@ public class EnemyAI : MonoBehaviour
     {
         if (!CalledOnceForState[(int)State.Search])
         {
-            if (isAttacking) { isAttacking = false; agent.isStopped = false; }
+            if (isAttacking)
+            {
+                agent.isStopped = false;
+                isAttacking = false;
+            }
 
             OnChangeState.RemoveListener(React);
 
-            agent.stoppingDistance = UnityEngine.Random.Range(0.5f, 1.5f);
             enemyAnim.SetFloat("Speed_f", 0);
 
             CalledOnceForState[(int)State.Search] = true;

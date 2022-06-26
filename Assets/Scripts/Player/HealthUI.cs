@@ -19,9 +19,9 @@ public class HealthUI : MonoBehaviour
 
     void AddHearts()
     {
-        if (player.hp > hearts.Length) { return; }
+        if (DataManager.Instance.playerHp > hearts.Length) { return; }
 
-        for (int i = 0; i < player.hp; i++)
+        for (int i = 0; i < DataManager.Instance.playerHp; i++)
         {
             if (!hearts[i].activeInHierarchy) { hearts[i].SetActive(true); }
         }
@@ -29,9 +29,9 @@ public class HealthUI : MonoBehaviour
 
     void DecreaseHearts()
     {
-        if (player.hp >= hearts.Length) { return; }
+        if (DataManager.Instance.playerHp >= hearts.Length) { return; }
 
-        for (int i = player.hp; i < hearts.Length; i++)
+        for (int i = DataManager.Instance.playerHp; i < hearts.Length; i++)
         {
             if (hearts[i].activeInHierarchy)
             { hearts[i].GetComponent<HeartContainer>().OnDisappear.Invoke(); }
@@ -41,7 +41,7 @@ public class HealthUI : MonoBehaviour
     IEnumerator WaitForDungeonGeneration()
     {
         while (!DungeonGenerator.Instance.isFullyGenerated) { yield return null; }
-        for (int i = 0; i < player.hp; i++)
+        for (int i = 0; i < DataManager.Instance.playerHp; i++)
         {
             if (!hearts[i].activeInHierarchy) { hearts[i].SetActive(true); }
         }

@@ -9,13 +9,18 @@ public class UIAudio : MonoBehaviour
 {
     public static UIAudio Instance;
 
-    [SerializeField] AudioClip bgmClip;
-
     [SerializeField] AudioClip startButtonClip;
     [SerializeField] AudioClip otherButtonClip;
     [SerializeField] AudioClip pauseClip;
+    [SerializeField] AudioClip gameoverClip;
+    [SerializeField] AudioClip pickupClip;
+    [SerializeField] AudioClip winClip;
 
-    AudioSource audioSource;
+    public AudioSource bgmSource;
+    [SerializeField] AudioSource uiSource;
+
+    [Range(0f, 1f)]
+    public float bgmDefaultVolume = .1f;
 
     public GameObject player;
 
@@ -29,13 +34,15 @@ public class UIAudio : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(Instance);
 
-        audioSource = GetComponent<AudioSource>();
+        bgmSource.volume = 0;
     }
 
     private void Start()
     {
         GetButtons();
         SceneManager.activeSceneChanged += GetButtons;
+
+        StartFade(bgmSource, 5f, bgmDefaultVolume);
     }
 
     private void Update()
@@ -48,17 +55,50 @@ public class UIAudio : MonoBehaviour
 
     public void PlayStartButtonAudio()
     {
-        audioSource.PlayOneShot(startButtonClip);
+        uiSource.PlayOneShot(startButtonClip);
     }
 
     public void PlayOtherButtonAudio()
     {
-        audioSource.PlayOneShot(otherButtonClip, .5f);
+        uiSource.PlayOneShot(otherButtonClip, .5f);
     }
 
     public void PlayPauseAudio()
     {
-        audioSource.PlayOneShot(pauseClip);
+        uiSource.PlayOneShot(pauseClip);
+    }
+
+    public void PlayGameoverAudio()
+    {
+        uiSource.PlayOneShot(gameoverClip);
+    }
+
+    public void PlayPickupAudio()
+    {
+        uiSource.PlayOneShot(pickupClip);
+    }
+
+    public void PlayWinAudio()
+    {
+        uiSource.PlayOneShot(winClip);
+    }
+
+    public void StartFade(AudioSource audioSource, float duration, float targetVolume)
+    {
+        StartCoroutine(Fade(audioSource, duration, targetVolume));
+    }
+
+    IEnumerator Fade(AudioSource audioSource, float duration, float targetVolume)
+    {
+        float currentTime = 0;
+        float start = audioSource.volume;
+        while (currentTime < duration)
+        {
+            currentTime += Time.unscaledDeltaTime;
+            audioSource.volume = Mathf.Lerp(start, targetVolume, currentTime / duration);
+            yield return null;
+        }
+        yield break;
     }
 
     void GetButtons()

@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 399e02fd09577416ba7dbf4695a1c509, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundRange: 2
+  soundRange: 3
   triangleCount: 10
 --- !u!33 &874466474
 MeshFilter:
@@ -114,7 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 399e02fd09577416ba7dbf4695a1c509, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundRange: 4
+  soundRange: 5
   triangleCount: 10
 --- !u!33 &2376191270785383111
 MeshFilter:
@@ -566,6 +566,7 @@ MonoBehaviour:
   walkingSpeed: 1.5
   runningSpeed: 3.5
   rotationSpeed: 360
+  currentSpeed: 0
   hp: 1
   OnHealthIncrease:
     m_PersistentCalls:
@@ -573,9 +574,9 @@ MonoBehaviour:
   OnHealthDecrease:
     m_PersistentCalls:
       m_Calls: []
-  runningLoseRate: 3
-  idleRecoveryRate: 2
-  walkingRecoveryRate: 1
+  runningLoseRate: 4
+  idleRecoveryRate: 3
+  walkingRecoveryRate: 2
   walkingNoise: {fileID: 874466470}
   runningNoise: {fileID: 453338099686064770}
   isAttacked: 0
